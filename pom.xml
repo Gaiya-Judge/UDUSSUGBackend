@@ -115,7 +115,6 @@
 					<sourceDestination>${project.basedir}/src/main/java</sourceDestination>
 					<nativeJavaType>true</nativeJavaType>
 					<outputFormat>java</outputFormat>
-					<solidityAddresses/>
 				</configuration>
 			</plugin>
 			<plugin>
