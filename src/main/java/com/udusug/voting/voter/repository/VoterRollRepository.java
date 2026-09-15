@@ -7,7 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface VoterRepository extends JpaRepository<VoterRoll, Long> {
+public interface VoterRollRepository extends JpaRepository<VoterRoll, Long> {
+
     Optional<VoterRoll> findByAdmissionNumber(String admissionNumber);
     boolean existsByAdmissionNumber(String admissionNumber);
 }

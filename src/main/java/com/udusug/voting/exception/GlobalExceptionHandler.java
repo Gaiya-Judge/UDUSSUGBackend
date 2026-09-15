@@ -17,43 +17,25 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCredentials(
-            InvalidCredentialsException ex,
-            HttpServletRequest request
-    ) {
-        log.warn("Authentication failed on path [{}]: {}", request.getRequestURI(), ex.getMessage());
-
-        ErrorResponse response = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-    }
-
     /**
-     * Handles account lockout state (HTTP 423 Locked)
+     * Handles all project-wide business and authorization errors defined via ApiException.
      */
-    @ExceptionHandler(AccountLockedException.class)
-    public ResponseEntity<ErrorResponse> handleAccountLocked(
-            AccountLockedException ex,
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ErrorResponse> handleApiException(
+            ApiException ex,
             HttpServletRequest request
     ) {
-        log.warn("Account locked access attempt on path [{}]: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("API Exception on path [{}]: Status {} - {}", request.getRequestURI(), ex.getStatus(), ex.getMessage());
 
         ErrorResponse response = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.LOCKED.value())
-                .error(HttpStatus.LOCKED.getReasonPhrase())
+                .status(ex.getStatus().value())
+                .error(ex.getStatus().getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
 
-        return ResponseEntity.status(HttpStatus.LOCKED).body(response);
+        return ResponseEntity.status(ex.getStatus()).body(response);
     }
 
     /**

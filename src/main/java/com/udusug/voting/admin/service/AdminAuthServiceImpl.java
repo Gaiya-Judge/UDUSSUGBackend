@@ -9,9 +9,11 @@ import com.udusug.voting.audit.entity.AuditLog;
 import com.udusug.voting.audit.repository.AuditLogRepository;
 import com.udusug.voting.config.security.JwtService;
 import com.udusug.voting.exception.AccountLockedException;
+import com.udusug.voting.exception.ApiException;
 import com.udusug.voting.exception.InvalidCredentialsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,14 +40,14 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         Admin admin = adminRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
                     log.warn("Login failed: Admin not found for email [{}]", request.getEmail());
-                    return new InvalidCredentialsException("Invalid email or password");
+                    return new ApiException(HttpStatus.UNAUTHORIZED ,"Invalid email or password");
                 });
 
         // 1. Lockout Check BEFORE password verification
         if (admin.getLockedUntil() != null) {
             if (admin.getLockedUntil().isAfter(LocalDateTime.now())) {
                 log.warn("Login blocked: Account [{}] is locked until {}", admin.getEmail(), admin.getLockedUntil());
-                throw new AccountLockedException("Account is locked due to consecutive failed attempts. Please try again after " + admin.getLockedUntil());
+                throw new ApiException(HttpStatus.LOCKED ,"Account is locked due to consecutive failed attempts. Please try again after " + admin.getLockedUntil());
             } else {
                 // Lockout cooldown expired, reset counters and save
                 log.info("Account lockout period expired for admin [{}]. Resetting lockout state.", admin.getEmail());
@@ -67,13 +69,13 @@ public class AdminAuthServiceImpl implements AdminAuthService {
                 log.warn("Admin account locked after 5 failed attempts: {}", admin.getEmail());
                 recordAudit(admin, "ACCOUNT_LOCKED", "Account locked for 15 minutes after 5 consecutive failed login attempts.");
 
-                throw new AccountLockedException("Account locked due to 5 consecutive failed login attempts. Please try again in 15 minutes.");
+                throw new ApiException(HttpStatus.LOCKED ,"Account locked due to 5 consecutive failed login attempts. Please try again in 15 minutes.");
             } else {
                 adminRepository.save(admin);
                 log.warn("Login failed for admin [{}]: Invalid password (Attempt {}/{})", admin.getEmail(), newFailedAttempts, MAX_FAILED_ATTEMPTS);
                 recordAudit(admin, "LOGIN_FAILED", "Failed login attempt (" + newFailedAttempts + "/" + MAX_FAILED_ATTEMPTS + ")");
 
-                throw new InvalidCredentialsException("Invalid email or password");
+                throw new ApiException(HttpStatus.UNAUTHORIZED ,"Invalid email or password");
             }
         }
 
@@ -101,13 +103,13 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         Admin admin = adminRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> {
                     log.error("Password change failed: Admin not found for email [{}]", adminEmail);
-                    return new InvalidCredentialsException("Admin account not found");
+                    return new ApiException(HttpStatus.NOT_FOUND, "Admin account not found");
                 });
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), admin.getPasswordHash())) {
             log.warn("Password change failed for admin [{}]: Current password mismatch", adminEmail);
             recordAudit(admin, "PASSWORD_CHANGE_FAILED", "Failed attempt to change password due to current password mismatch.");
-            throw new InvalidCredentialsException("Incorrect current password");
+            throw new ApiException(HttpStatus.UNAUTHORIZED ,"Incorrect current password");
         }
 
         admin.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
