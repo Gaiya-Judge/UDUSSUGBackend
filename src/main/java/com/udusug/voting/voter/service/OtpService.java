@@ -1,5 +1,6 @@
 package com.udusug.voting.voter.service;
 
+import com.udusug.voting.voter.dto.OtpVerifyResponse;
 import com.udusug.voting.voter.entity.VoterRoll;
 
 public interface OtpService {
@@ -10,4 +11,10 @@ public interface OtpService {
      * and returns the raw OTP code for immediate email delivery.
      */
     String generateAndSaveOtp(VoterRoll voter);
+
+    /**
+     * Verifies an OTP against the stored record for an admission number.
+     * Marks the OTP verified on success and hands off directly to VotingToken issuance.
+     */
+    OtpVerifyResponse verifyOtp(String admissionNumber, String otpCode);
 }

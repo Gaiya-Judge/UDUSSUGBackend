@@ -1,5 +1,7 @@
 package com.udusug.voting.voter.controller;
 
+import com.udusug.voting.voter.dto.OtpVerifyRequest;
+import com.udusug.voting.voter.dto.OtpVerifyResponse;
 import com.udusug.voting.voter.dto.VoterLoginRequest;
 import com.udusug.voting.voter.dto.VoterLoginResponse;
 import com.udusug.voting.voter.entity.VoterRoll;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/voter/auth")
 @RequiredArgsConstructor
-public class VoterController {
+public class VoterAuthController {
 
     private final VoterAuthService voterAuthService;
     private final OtpService otpService;
@@ -42,6 +44,15 @@ public class VoterController {
         VoterLoginResponse response = VoterLoginResponse.builder()
                 .message("If the admission number is valid and active, an OTP has been dispatched to the registered email address.")
                 .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<OtpVerifyResponse> verifyOtp(@Valid @RequestBody OtpVerifyRequest request) {
+        log.info("HTTP POST /api/voter/auth/verify-otp received for admission number: {}", request.getAdmissionNumber());
+
+        OtpVerifyResponse response = otpService.verifyOtp(request.getAdmissionNumber(), request.getOtpCode());
 
         return ResponseEntity.ok(response);
     }
