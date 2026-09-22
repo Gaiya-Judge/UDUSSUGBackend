@@ -15,6 +15,7 @@ import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -155,6 +156,48 @@ public class VotingContractService {
         }
     }
 
+    /**
+     * Submits a bundled ballot on-chain via castVote(bytes32, uint256[], uint256[]).
+     * Converts token hash string to byte[32] and Long lists to BigInteger lists.
+     *
+     * @param tokenHash Hexadecimal SHA-256 hash string of the voting token
+     * @param positionIds List of position IDs selected
+     * @param candidateIds List of candidate IDs selected (parallel array to positionIds)
+     * @return Ethereum transaction hash of the mined vote transaction
+     */
+    public String castVote(String tokenHash, List<Long> positionIds, List<Long> candidateIds) throws Exception {
+        log.info("Initiating smart contract write: castVote() for token (Hash prefix: {}) at address [{}]",
+                tokenHash.substring(0, 10), contractAddress);
+
+        try {
+            VotingSystem contract = loadContract();
+
+            // Convert tokenHash string (64-char hex) to byte[32] for bytes32 parameter
+            byte[] bytes32TokenHash = hexStringToByteArray(tokenHash);
+
+            // Convert List<Long> to List<BigInteger> for uint256[] parameters
+            List<BigInteger> positionIdsBigInt = positionIds.stream()
+                    .map(BigInteger::valueOf)
+                    .toList();
+
+            List<BigInteger> candidateIdsBigInt = candidateIds.stream()
+                    .map(BigInteger::valueOf)
+                    .toList();
+
+            TransactionReceipt receipt = contract.castVote(bytes32TokenHash, positionIdsBigInt, candidateIdsBigInt).send();
+            String txHash = receipt.getTransactionHash();
+
+            log.info("Smart contract write castVote() succeeded for token (Hash prefix: {}). txHash: {}",
+                    tokenHash.substring(0, 10), txHash);
+
+            return txHash;
+
+        } catch (Exception e) {
+            log.error("Smart contract write castVote() failed for token (Hash prefix: {}): ", tokenHash.substring(0, 10), e);
+            throw e; // Rethrown so VotingService can catch and translate reverts gracefully
+        }
+    }
+
     private VotingSystem loadContract() {
         TransactionManager transactionManager = new RawTransactionManager(web3j, credentials, chainId);
         return VotingSystem.load(
@@ -163,6 +206,17 @@ public class VotingContractService {
                 transactionManager,
                 new DefaultGasProvider()
         );
+    }
+
+    private static byte[] hexStringToByteArray(String s) {
+        String cleanHex = s.startsWith("0x") ? s.substring(2) : s;
+        int len = cleanHex.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(cleanHex.charAt(i), 16) << 4)
+                    + Character.digit(cleanHex.charAt(i + 1), 16));
+        }
+        return data;
     }
 
     public record CandidateWriteResult(Long assignedId, String transactionHash) {}

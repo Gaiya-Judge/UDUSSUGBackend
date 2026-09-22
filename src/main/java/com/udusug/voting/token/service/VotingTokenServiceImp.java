@@ -1,16 +1,17 @@
-package com.udusug.voting.voter.service;
+package com.udusug.voting.token.service;
 
 import com.udusug.voting.exception.ApiException;
 import com.udusug.voting.voter.dto.OtpVerifyResponse;
 import com.udusug.voting.voter.entity.VoterRoll;
-import com.udusug.voting.voter.entity.VotingToken;
+import com.udusug.voting.token.entity.VotingToken;
 import com.udusug.voting.voter.repository.VoterRollRepository;
-import com.udusug.voting.voter.repository.VotingTokenRepository;
+import com.udusug.voting.token.repository.VotingTokenRepository;
 import com.udusug.voting.voter.util.HashUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -27,11 +28,12 @@ public class VotingTokenServiceImp implements  VotingTokenService {
     private final VoterRollRepository voterRollRepository;
 
     @Override
+    @Transactional
     public OtpVerifyResponse issueToken(VoterRoll voter) {
 
         LocalDateTime now = LocalDateTime.now();
 
-        // Check active lock status (FR7)
+        // Check active lock status
         if (voter.isTokenLockActive()) {
             if (voter.getTokenIssuedAt() != null && voter.getTokenIssuedAt().plusMinutes(SESSION_TIMEOUT_MINUTES).isAfter(now)) {
                 log.warn("Token issuance rejected: Admission number [{}] already has an active session lock", voter.getAdmissionNumber());
@@ -75,6 +77,46 @@ public class VotingTokenServiceImp implements  VotingTokenService {
                 .votingToken(rawToken)
                 .expiresAt(expiresAt)
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public VotingToken verifyToken(String rawToken) {
+
+        if (rawToken == null || rawToken.isBlank()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Voting token is required");
+        }
+
+        String inputHash = HashUtils.sha256(rawToken.trim());
+        log.info("Pre-checking voting token (Hash prefix: {})", inputHash.substring(0, 10));
+
+        VotingToken token = votingTokenRepository.findByTokenHash(inputHash)
+                .orElseThrow(() -> {
+                    log.warn("Token verification failed: Hash prefix [{}] not found", inputHash.substring(0, 10));
+                    return new ApiException(HttpStatus.UNAUTHORIZED, "Invalid voting token");
+                });
+
+        if (token.isUsed()) {
+            log.warn("Token verification failed: Token (Hash prefix: {}) has already been used", inputHash.substring(0, 10));
+            throw new ApiException(HttpStatus.CONFLICT, "Voting token has already been used");
+        }
+
+        if (LocalDateTime.now().isAfter(token.getExpiresAt())) {
+            log.warn("Token verification failed: Token (Hash prefix: {}) expired at {}", inputHash.substring(0, 10), token.getExpiresAt());
+            throw new ApiException(HttpStatus.GONE, "Voting token has expired. Please authenticate again");
+        }
+
+        log.info("Voting token local pre-check passed (Hash prefix: {})", inputHash.substring(0, 10));
+        return token;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void markUsed(VotingToken votingToken) {
+        votingToken.setUsed(true);
+        votingTokenRepository.save(votingToken);
+        log.info("Voting token marked as used in local database (Hash prefix: {})", votingToken.getTokenHash().substring(0, 10));
+
     }
 
     private static String bytesToHex(byte[] bytes) {

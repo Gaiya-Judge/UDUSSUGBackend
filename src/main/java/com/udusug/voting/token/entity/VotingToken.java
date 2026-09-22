@@ -1,4 +1,4 @@
-package com.udusug.voting.voter.entity;
+package com.udusug.voting.token.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

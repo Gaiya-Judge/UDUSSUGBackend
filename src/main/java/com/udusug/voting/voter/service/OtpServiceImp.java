@@ -1,6 +1,7 @@
 package com.udusug.voting.voter.service;
 
 import com.udusug.voting.exception.ApiException;
+import com.udusug.voting.token.service.VotingTokenService;
 import com.udusug.voting.voter.dto.OtpVerifyResponse;
 import com.udusug.voting.voter.entity.OtpVerification;
 import com.udusug.voting.voter.entity.VoterRoll;

@@ -1,7 +1,6 @@
 package com.udusug.voting.election.repository;
 
 import com.udusug.voting.election.entity.Candidate;
-import com.udusug.voting.voter.entity.VotingToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
