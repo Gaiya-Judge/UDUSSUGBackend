@@ -21,4 +21,10 @@ public interface ElectionService {
      * Sets election start/end times on-chain and updates local Election cache.
      */
     AdminWriteResponse setElectionTimes(String adminEmail, SetElectionTimesRequest request);
+
+    /**
+     * Issues closeElection transaction on-chain as admin housekeeping action,
+     * syncs local Election.closed flag cache, and writes audit entry.
+     */
+    AdminWriteResponse closeElection(String adminEmail);
 }

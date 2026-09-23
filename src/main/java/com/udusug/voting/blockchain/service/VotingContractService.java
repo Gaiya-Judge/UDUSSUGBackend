@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.tuples.generated.Tuple3;
 import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.DefaultGasProvider;
@@ -206,6 +207,67 @@ public class VotingContractService {
                 transactionManager,
                 new DefaultGasProvider()
         );
+    }
+
+    /**
+     * Queries getResults(positionId) on-chain.
+     * Returns Tuple3 of (candidateIds, names, voteCounts).
+     * Translates revert (election still open) vs success (deadline passed or election closed).
+     */
+    public Tuple3<List<BigInteger>, List<String>, List<BigInteger>> getResults(Long positionId) {
+        log.info("Initiating smart contract read call: getResults(positionId={}) at address [{}]", positionId, contractAddress);
+
+        try {
+            VotingSystem contract = loadContract();
+            Tuple3<List<BigInteger>, List<String>, List<BigInteger>> rawResults =
+                    contract.getResults(BigInteger.valueOf(positionId)).send();
+
+            log.info("Smart contract read getResults() succeeded for positionId {}", positionId);
+            return rawResults;
+
+        } catch (Exception e) {
+            log.info("Smart contract read getResults() failed/reverted at address [{}]: {}", contractAddress, e.getMessage());
+
+            String rawError = e.getMessage() != null ? e.getMessage() : "";
+            if (rawError.contains("Results available only after election ends")) {
+                throw new ApiException(HttpStatus.OK, "Election is still open. Results are not available yet.");
+            }
+
+            throw new ApiException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error querying blockchain contract results: " + e.getMessage()
+            );
+        }
+    }
+
+    /**
+     * Issues closeElection() transaction on-chain as housekeeping action.
+     */
+    public String closeElection() {
+        log.info("Initiating smart contract write: closeElection() at address [{}]", contractAddress);
+
+        try {
+            VotingSystem contract = loadContract();
+
+            TransactionReceipt receipt = contract.closeElection().send();
+            String txHash = receipt.getTransactionHash();
+
+            log.info("Smart contract write closeElection() succeeded. txHash: {}", txHash);
+            return txHash;
+
+        } catch (Exception e) {
+            log.error("Failed to execute smart contract write closeElection() at address [{}]: ", contractAddress, e);
+
+            String rawError = e.getMessage() != null ? e.getMessage() : "";
+            if (rawError.contains("Already closed")) {
+                throw new ApiException(HttpStatus.CONFLICT, "Election has already been closed on-chain");
+            }
+
+            throw new ApiException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Blockchain error while closing election: " + e.getMessage()
+            );
+        }
     }
 
     private static byte[] hexStringToByteArray(String s) {

@@ -148,6 +148,34 @@ public class ElectionServiceImp implements ElectionService{
                 .build();
     }
 
+    @Override
+    public AdminWriteResponse closeElection(String adminEmail) {
+        log.info("Processing closeElection business logic for admin: {}", adminEmail);
+
+        Admin admin = findAdminByEmail(adminEmail);
+
+        // 1. Submit on-chain housekeeping transaction
+        String txHash = votingContractService.closeElection();
+
+        // 2. Sync local Election cache closed flag
+        Election election = electionRepository.findFirstByOrderByIdDesc()
+                .orElse(Election.builder().build());
+
+        election.setClosed(true);
+        electionRepository.save(election);
+
+        log.info("Successfully updated local Election.closed flag cache to true");
+
+        // 3. Write AuditLog entry
+        recordAudit(admin, "CLOSE_ELECTION",
+                String.format("Closed election on-chain and updated local cache flag. TxHash: %s", txHash));
+
+        return AdminWriteResponse.builder()
+                .message("Election closed successfully")
+                .transactionHash(txHash)
+                .build();
+    }
+
     private Admin findAdminByEmail(String email) {
         return adminRepository.findByEmail(email)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Admin account not found for email: " + email));

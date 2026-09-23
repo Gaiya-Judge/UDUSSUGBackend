@@ -60,4 +60,13 @@ public class AdminElectionController {
         AdminWriteResponse response = electionService.setElectionTimes(adminEmail, request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/election/close")
+    public ResponseEntity<AdminWriteResponse> closeElection(Authentication authentication) {
+        String adminEmail = authentication.getName();
+        log.info("HTTP POST /api/admin/election/close received from admin [{}]", adminEmail);
+
+        AdminWriteResponse response = electionService.closeElection(adminEmail);
+        return ResponseEntity.ok(response);
+    }
 }
