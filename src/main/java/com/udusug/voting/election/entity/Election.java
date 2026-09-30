@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "elections")
@@ -21,10 +22,13 @@ public class Election {
     private Long id;
 
     @Column(nullable = false)
-    private LocalDateTime startTime;
+    private String sessionLabel;
 
     @Column(nullable = false)
-    private LocalDateTime endTime;
+    private OffsetDateTime startTime;
+
+    @Column(nullable = false)
+    private OffsetDateTime endTime;
 
     @Column(nullable = false)
     private boolean closed;

@@ -12,4 +12,6 @@ public interface ElectionRepository  extends JpaRepository<Election, Long> {
      * Finds the single latest Election entity ordered by auto-increment ID descending.
      */
     Optional<Election> findFirstByOrderByIdDesc();
+
+    Optional<Election> findBySessionLabel(String targetLabel);
 }

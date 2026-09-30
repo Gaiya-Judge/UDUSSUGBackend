@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Slf4j
 @Service
@@ -45,7 +46,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
 
         // 1. Lockout Check BEFORE password verification
         if (admin.getLockedUntil() != null) {
-            if (admin.getLockedUntil().isAfter(LocalDateTime.now())) {
+            if (admin.getLockedUntil().isAfter(OffsetDateTime.now())) {
                 log.warn("Login blocked: Account [{}] is locked until {}", admin.getEmail(), admin.getLockedUntil());
                 throw new ApiException(HttpStatus.LOCKED ,"Account is locked due to consecutive failed attempts. Please try again after " + admin.getLockedUntil());
             } else {
@@ -63,7 +64,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
             admin.setFailedLoginAttempts(newFailedAttempts);
 
             if (newFailedAttempts >= MAX_FAILED_ATTEMPTS) {
-                admin.setLockedUntil(LocalDateTime.now().plusMinutes(LOCK_TIME_DURATION_MINUTES));
+                admin.setLockedUntil(OffsetDateTime.now().plusMinutes(LOCK_TIME_DURATION_MINUTES));
                 adminRepository.save(admin);
 
                 log.warn("Admin account locked after 5 failed attempts: {}", admin.getEmail());

@@ -18,4 +18,7 @@ public class AddCandidateRequest {
 
     @NotBlank(message = "Candidate name is required")
     private String name;
+
+    @NotBlank(message = "candidate department required")
+    private String department;
 }

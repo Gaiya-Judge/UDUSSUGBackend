@@ -14,5 +14,6 @@ public class CandidateResultDto {
 
     private Long candidateId;
     private String name;
+    private String department;
     private Long voteCount;
 }

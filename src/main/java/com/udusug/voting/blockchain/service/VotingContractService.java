@@ -129,6 +129,32 @@ public class VotingContractService {
         }
     }
 
+    public String updateCandidateOnChain(BigInteger candidateId, BigInteger positionId, String name) {
+        log.info("Submitting updateCandidate transaction to blockchain: candidateId={}, positionId={}, name={}", candidateId, positionId, name);
+        try {
+            VotingSystem contract = loadContract();
+            TransactionReceipt receipt = contract.updateCandidate(candidateId, positionId, name).send();
+            log.info("updateCandidate transaction succeeded. TxHash: {}", receipt.getTransactionHash());
+            return receipt.getTransactionHash();
+        } catch (Exception e) {
+            log.error("Blockchain error executing updateCandidate(id={}): {}", candidateId, e.getMessage(), e);
+            throw new ApiException(HttpStatus.CONFLICT, "Failed to update candidate on-chain: " + e.getMessage());
+        }
+    }
+
+    public String removeCandidateOnChain(BigInteger candidateId) {
+        log.info("Submitting removeCandidate transaction to blockchain: candidateId={}", candidateId);
+        try {
+            VotingSystem contract = loadContract();
+            TransactionReceipt receipt = contract.removeCandidate(candidateId).send();
+            log.info("removeCandidate transaction succeeded. TxHash: {}", receipt.getTransactionHash());
+            return receipt.getTransactionHash();
+        } catch (Exception e) {
+            log.error("Blockchain error executing removeCandidate(id={}): {}", candidateId, e.getMessage(), e);
+            throw new ApiException(HttpStatus.CONFLICT, "Failed to remove candidate on-chain: " + e.getMessage());
+        }
+    }
+
     /**
      * Sets the start and end timestamps for the election on-chain.
      *
@@ -199,16 +225,6 @@ public class VotingContractService {
         }
     }
 
-    private VotingSystem loadContract() {
-        TransactionManager transactionManager = new RawTransactionManager(web3j, credentials, chainId);
-        return VotingSystem.load(
-                contractAddress,
-                web3j,
-                transactionManager,
-                new DefaultGasProvider()
-        );
-    }
-
     /**
      * Queries getResults(positionId) on-chain.
      * Returns Tuple3 of (candidateIds, names, voteCounts).
@@ -268,6 +284,16 @@ public class VotingContractService {
                     "Blockchain error while closing election: " + e.getMessage()
             );
         }
+    }
+
+    private VotingSystem loadContract() {
+        TransactionManager transactionManager = new RawTransactionManager(web3j, credentials, chainId);
+        return VotingSystem.load(
+                contractAddress,
+                web3j,
+                transactionManager,
+                new DefaultGasProvider()
+        );
     }
 
     private static byte[] hexStringToByteArray(String s) {

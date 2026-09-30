@@ -22,7 +22,13 @@ public class Candidate {
     private Position position;
 
     @Column(nullable = false)
+    private String department;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
+    private boolean active = true;
 
     private String photoUrl;
 }

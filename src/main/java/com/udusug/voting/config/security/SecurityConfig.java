@@ -54,7 +54,7 @@ public class SecurityConfig {
                                 "/api/voter/**",
                                 "/api/vote",
                                 "/api/candidates",
-                                "/api/results",
+                                "/api/results/**",
                                 "/api/turnout"
                         ).permitAll()
                         .anyRequest().authenticated()

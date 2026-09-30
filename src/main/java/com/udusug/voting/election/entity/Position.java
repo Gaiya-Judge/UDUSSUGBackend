@@ -21,5 +21,8 @@ public class Position {
     private Long id;
 
     @Column(nullable = false)
+    private String sessionLabel;
+
+    @Column(nullable = false)
     private String name;
 }
