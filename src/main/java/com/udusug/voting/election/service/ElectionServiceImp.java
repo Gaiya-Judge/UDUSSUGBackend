@@ -12,6 +12,8 @@ import com.udusug.voting.blockchain.service.VotingContractService;
 import com.udusug.voting.election.entity.Candidate;
 import com.udusug.voting.election.entity.Election;
 import com.udusug.voting.election.entity.Position;
+import com.udusug.voting.election.dto.PositionResponse;
+import com.udusug.voting.election.dto.ElectionResponse;
 import com.udusug.voting.election.repository.CandidateRepository;
 import com.udusug.voting.election.repository.ElectionRepository;
 import com.udusug.voting.election.repository.PositionRepository;
@@ -27,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -39,6 +42,34 @@ public class ElectionServiceImp implements ElectionService{
     private final ElectionRepository electionRepository;
     private final AdminRepository adminRepository;
     private final AuditLogRepository auditLogRepository;
+
+    @Override
+    public List<PositionResponse> getPositions(String sessionLabel) {
+        List<Position> positions;
+        if (sessionLabel != null) {
+            positions = positionRepository.findBySessionLabelOrderByIdAsc(sessionLabel);
+        } else {
+            Election latest = electionRepository.findFirstByOrderByIdDesc().orElse(null);
+            positions = latest == null
+                    ? positionRepository.findAllByOrderByIdAsc()
+                    : positionRepository.findBySessionLabelOrderByIdAsc(latest.getSessionLabel());
+        }
+        return positions.stream().map(p -> PositionResponse.builder()
+                .id(p.getId()).name(p.getName()).sessionLabel(p.getSessionLabel()).build()).toList();
+    }
+
+    @Override
+    public ElectionResponse getLatestElection() {
+        Election latest = electionRepository.findFirstByOrderByIdDesc()
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "No election has been scheduled yet"));
+        ZoneId lagos = ZoneId.of("Africa/Lagos");
+        return ElectionResponse.builder()
+                .sessionLabel(latest.getSessionLabel())
+                .startTime(latest.getStartTime().atZoneSameInstant(lagos).toOffsetDateTime())
+                .endTime(latest.getEndTime().atZoneSameInstant(lagos).toOffsetDateTime())
+                .closed(latest.isClosed())
+                .build();
+    }
 
     @Override
     public AdminWriteResponse addPosition(String adminEmail, AddPositionRequest request) {

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -65,6 +66,34 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleMissingStaticResource(
+            NoResourceFoundException ex,
+            HttpServletRequest request
+    ) {
+        String path = request.getRequestURI();
+        if (!isStaticFrontendPath(path)) {
+            return handleGenericException(ex, request);
+        }
+
+        ErrorResponse response = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .message("Static resource not found")
+                .path(path)
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    private boolean isStaticFrontendPath(String path) {
+        return path.equals("/") || path.equals("/index.html") || path.equals("/verify.html")
+                || path.equals("/ballot.html") || path.equals("/confirmation.html")
+                || path.equals("/results.html") || path.equals("/candidates.html")
+                || path.equals("/favicon.ico") || path.startsWith("/admin/")
+                || path.startsWith("/css/") || path.startsWith("/js/") || path.startsWith("/images/");
     }
 
     /**

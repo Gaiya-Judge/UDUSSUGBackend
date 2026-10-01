@@ -4,8 +4,15 @@ import com.udusug.voting.admin.dto.AddCandidateRequest;
 import com.udusug.voting.admin.dto.AddPositionRequest;
 import com.udusug.voting.admin.dto.AdminWriteResponse;
 import com.udusug.voting.admin.dto.SetElectionTimesRequest;
+import com.udusug.voting.election.dto.PositionResponse;
+import com.udusug.voting.election.dto.ElectionResponse;
+import java.util.List;
 
 public interface ElectionService {
+
+    List<PositionResponse> getPositions(String sessionLabel);
+
+    ElectionResponse getLatestElection();
 
     /**
      * Adds a position on-chain, captures the assigned ID, and caches it locally.

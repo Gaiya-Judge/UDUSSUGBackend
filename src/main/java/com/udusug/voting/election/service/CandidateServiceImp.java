@@ -54,9 +54,9 @@ public class CandidateServiceImp implements CandidateService {
         List<Candidate> candidates;
 
         if (positionId != null) {
-            candidates = candidateRepository.findByPosition_IdAndPosition_SessionLabel(positionId, currentSessionLabel);
+            candidates = candidateRepository.findActiveByPositionAndSessionWithPosition(positionId, currentSessionLabel);
         } else {
-            candidates = candidateRepository.findByPosition_SessionLabel(currentSessionLabel);
+            candidates = candidateRepository.findActiveBySessionLabelWithPosition(currentSessionLabel);
         }
 
         return candidates.stream()
@@ -67,7 +67,7 @@ public class CandidateServiceImp implements CandidateService {
     @Override
     public List<AdminCandidateResponse> getAllCandidatesForAdmin() {
         log.info("Admin request: fetching candidate list");
-        return candidateRepository.findAll().stream()
+        return candidateRepository.findAllWithPosition().stream()
                 .map(this::mapToAdminResponse)
                 .toList();
     }
@@ -165,6 +165,7 @@ public class CandidateServiceImp implements CandidateService {
                 .candidateId(candidate.getId())
                 .name(candidate.getName())
                 .positionId(candidate.getPosition().getId())
+                .positionName(candidate.getPosition().getName())
                 .department(candidate.getDepartment())
                 .photoUrl(candidate.getPhotoUrl())
                 .build();
@@ -175,6 +176,7 @@ public class CandidateServiceImp implements CandidateService {
                 .id(candidate.getId())
                 .name(candidate.getName())
                 .positionId(candidate.getPosition().getId())
+                .positionName(candidate.getPosition().getName())
                 .department(candidate.getDepartment())
                 .photoUrl(candidate.getPhotoUrl())
                 .active(candidate.isActive())
