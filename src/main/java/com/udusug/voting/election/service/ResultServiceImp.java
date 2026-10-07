@@ -4,6 +4,8 @@ import com.udusug.voting.blockchain.service.VotingContractService;
 import com.udusug.voting.election.dto.CandidateResultDto;
 import com.udusug.voting.election.dto.ResultsResponse;
 import com.udusug.voting.election.dto.TurnoutResponse;
+import com.udusug.voting.election.entity.Candidate;
+import com.udusug.voting.election.repository.CandidateRepository;
 import com.udusug.voting.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,9 @@ import org.web3j.tuples.generated.Tuple3;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -20,6 +25,7 @@ import java.util.List;
 public class ResultServiceImp implements ResultsService{
 
     private final VotingContractService votingContractService;
+    private final CandidateRepository candidateRepository;
 
     @Override
     public ResultsResponse getResults(Long positionId) {
@@ -33,11 +39,19 @@ public class ResultServiceImp implements ResultsService{
             List<String> names = rawTuple.component2();
             List<BigInteger> voteCounts = rawTuple.component3();
 
+            // Department is application data, so enrich blockchain results from the local candidate table.
+            List<Long> localIds = candidateIds.stream().map(BigInteger::longValueExact).toList();
+            Map<Long, Candidate> candidatesById = candidateRepository.findAllById(localIds).stream()
+                    .collect(Collectors.toMap(Candidate::getId, Function.identity()));
+
             List<CandidateResultDto> candidateResults = new ArrayList<>();
             for (int i = 0; i < candidateIds.size(); i++) {
+                Long candidateId = candidateIds.get(i).longValueExact();
+                Candidate localCandidate = candidatesById.get(candidateId);
                 candidateResults.add(CandidateResultDto.builder()
-                        .candidateId(candidateIds.get(i).longValueExact())
+                        .candidateId(candidateId)
                         .name(names.get(i))
+                        .department(localCandidate != null ? localCandidate.getDepartment() : null)
                         .voteCount(voteCounts.get(i).longValueExact())
                         .build());
             }

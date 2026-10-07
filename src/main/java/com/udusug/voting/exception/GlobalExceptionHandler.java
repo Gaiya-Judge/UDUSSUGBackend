@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
     }
 
     private boolean isStaticFrontendPath(String path) {
-        return path.equals("/") || path.equals("/index.html") || path.equals("/verify.html")
+        return path.equals("/") || path.equals("/index.html") || path.equals("/login.html") || path.equals("/receipt.html") || path.equals("/admin-login.html") || path.equals("/verify.html")
                 || path.equals("/ballot.html") || path.equals("/confirmation.html")
                 || path.equals("/results.html") || path.equals("/candidates.html")
                 || path.equals("/favicon.ico") || path.startsWith("/admin/")

@@ -1,19 +1,31 @@
 package com.udusug.voting.vote.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.vote.dto.CastVoteRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.vote.dto.CastVoteResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.vote.service.VotingService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestMapping;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@Tag(name = "Voting")
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class VotingController {

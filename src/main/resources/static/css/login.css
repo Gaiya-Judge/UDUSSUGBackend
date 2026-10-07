@@ -1,0 +1,909 @@
+/* ==========================================================================
+   UDUS SUG Blockchain Voting System - Voter Login Styles
+   Visual match for the institutional voter login page.
+   ========================================================================== */
+
+/* Typography & Base Adjustments */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1E293B;
+    background-color: #EEF0F8;
+    overflow-x: hidden;
+}
+
+/* Institutional Header */
+.site-header {
+    background-color: #2D1F47;
+    padding: 0.85rem 2.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+.site-header .container-fluid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+}
+
+.header-logo {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.header-brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-university {
+    color: #FFFFFF;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+}
+
+.brand-subtext {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.85rem;
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+/* Header Navigation */
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.header-nav-link {
+    color: #FFFFFF;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    position: relative;
+    padding: 0.35rem 0;
+    transition: color 0.15s ease-in-out;
+}
+
+.header-nav-link:hover {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+}
+
+/* Active Indicator on 'Home' */
+.header-nav-link.active {
+    color: #FFFFFF;
+}
+
+.header-nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2.5px;
+    background-color: #8B5CF6;
+    border-radius: 2px;
+}
+
+/* Main Content Area & Background Treatment */
+.login-main-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 3rem 1.25rem;
+    overflow: hidden;
+    background-color: #EEF0F8;
+    background-image: 
+        linear-gradient(135deg, rgba(246, 247, 252, 0.90) 0%, rgba(238, 240, 249, 0.92) 100%),
+        url('../images/udus-campus-bg.jpg');
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+/* Faint Official UDUS Crest Watermark (Right side, subtle and low opacity) */
+.login-main-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -40px;
+    transform: translateY(-50%);
+    width: 580px;
+    height: 580px;
+    background-image: url('../images/udus-logo.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Centered Voter Login Card */
+.login-card {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    border: 1px solid rgba(85, 45, 120, 0.12);
+    box-shadow: 0 12px 35px -5px rgba(45, 31, 71, 0.08), 0 4px 12px -2px rgba(45, 31, 71, 0.04);
+    width: 100%;
+    max-width: 440px;
+    padding: 2.75rem 2.25rem 2.25rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Circular Purple User Avatar */
+.login-avatar-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: #372859;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.35rem auto;
+}
+
+.login-avatar-circle svg {
+    width: 32px;
+    height: 32px;
+}
+
+/* Card Typography */
+.login-card-title {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #231942;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.login-card-subtitle {
+    font-size: 0.92rem;
+    color: #5C5872;
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 1.65rem;
+}
+
+/* Form Styles */
+.login-form-label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #2D253A;
+    margin-bottom: 0.45rem;
+}
+
+.required-asterisk {
+    color: #DC2626;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
+.login-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    border: 1px solid #D8D2E2;
+    border-radius: 8px;
+    background-color: #FFFFFF;
+    color: #1E293B;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.login-input::placeholder {
+    color: #94A3B8;
+}
+
+.login-input:focus {
+    border-color: #372859;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(55, 40, 89, 0.15);
+}
+
+/* Submit Button */
+.btn-login-submit {
+    width: 100%;
+    background-color: #372859;
+    border: 1px solid #372859;
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 0.98rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    margin-top: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, transform 0.05s ease;
+}
+
+.btn-login-submit:hover:not(:disabled) {
+    background-color: #2B1E48;
+    border-color: #2B1E48;
+    color: #FFFFFF;
+}
+
+.btn-login-submit:active:not(:disabled) {
+    transform: scale(0.99);
+}
+
+.btn-login-submit:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(55, 40, 89, 0.35);
+}
+
+.btn-login-submit:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+}
+
+/* Card Divider */
+.login-card-divider {
+    border: none;
+    border-top: 1px solid #ECE7F2;
+    margin: 1.75rem 0 1.25rem;
+    opacity: 1;
+}
+
+/* Help Text */
+.login-help-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    color: #5C5872;
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+.login-help-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    color: #5C5872;
+}
+
+/* Institutional Footer */
+.site-footer {
+    background-color: #2D1F47;
+    padding: 1rem 2.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 10;
+}
+
+.site-footer .container-fluid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0;
+    font-size: 0.82rem;
+}
+
+.footer-copy {
+    color: rgba(255, 255, 255, 0.82);
+    margin: 0;
+}
+
+.footer-pillars {
+    color: rgba(255, 255, 255, 0.72);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
+.pillar-bullet {
+    margin: 0 0.35rem;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .site-header {
+        padding: 0.75rem 1.25rem;
+    }
+
+    .header-logo {
+        width: 38px;
+        height: 38px;
+    }
+
+    .brand-university {
+        font-size: 1rem;
+    }
+
+    .brand-subtext {
+        font-size: 0.75rem;
+    }
+
+    .header-nav {
+        gap: 1.25rem;
+    }
+
+    .header-nav-link {
+        font-size: 0.85rem;
+    }
+
+    .login-main-wrapper {
+        padding: 2rem 1rem;
+    }
+
+    .login-main-wrapper::after {
+        width: 320px;
+        height: 320px;
+        right: -80px;
+        opacity: 0.05;
+    }
+
+    .login-card {
+        padding: 2rem 1.5rem 1.75rem;
+    }
+
+    .login-card-title {
+        font-size: 1.45rem;
+    }
+
+    .site-footer {
+        padding: 1rem 1.25rem;
+    }
+
+    .site-footer .container-fluid {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .otp-boxes {
+        gap: 0.35rem;
+    }
+
+    .otp-box {
+        height: 48px;
+        font-size: 1.2rem;
+    }
+}
+
+/* ==========================================================================
+   V2: Voter OTP Verification Styles
+   ========================================================================== */
+
+/* Circular Lavender Shield Avatar Badge */
+.verify-avatar-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: #EDE8F8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.35rem auto;
+}
+
+/* OTP Segmented Input Container */
+.otp-input-container {
+    position: relative;
+    width: 100%;
+    margin-top: 1.25rem;
+}
+
+/* Transparent Overlay Input handling real typing, focus, and paste */
+.otp-hidden-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: text;
+    z-index: 3;
+    font-size: 24px;
+}
+
+/* 6 Box Flex Row */
+.otp-boxes {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* Individual Digit Box */
+.otp-box {
+    flex: 1;
+    height: 54px;
+    max-width: 52px;
+    background-color: #FFFFFF;
+    border: 1px solid #D8D2E2;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #231942;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    user-select: none;
+}
+
+.otp-box.empty {
+    color: #A098AE;
+}
+
+.otp-box.filled {
+    color: #231942;
+    border-color: #372859;
+}
+
+.otp-box.focused {
+    border-color: #372859;
+    box-shadow: 0 0 0 3px rgba(55, 40, 89, 0.18);
+}
+
+/* Resend Code Timer Row */
+.resend-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #5C5872;
+    font-size: 0.88rem;
+    margin: 1.5rem 0 1.25rem 0;
+}
+
+.resend-clock-icon {
+    width: 18px;
+    height: 18px;
+    color: #6D28D9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.resend-timer-bold {
+    font-weight: 700;
+    color: #372859;
+}
+
+.btn-resend-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #6D28D9;
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.btn-resend-link:hover {
+    color: #4C1D95;
+}
+
+/* Back Button */
+.btn-verify-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.98rem;
+    font-weight: 500;
+    color: #372859;
+    background-color: #FFFFFF;
+    border: 1px solid #D8D2E2;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-top: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-verify-back:hover {
+    background-color: #F8F6FC;
+    border-color: #C4B5FD;
+    color: #2B1E48;
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   Vote Success Receipt Page Styles (receipt.html)
+   Visual match to reference design with green success state & institutional shell
+   ========================================================================== */
+
+.receipt-card {
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    border: 1px solid rgba(85, 45, 120, 0.08);
+    box-shadow: 0 16px 40px -8px rgba(45, 31, 71, 0.08), 0 6px 16px -4px rgba(45, 31, 71, 0.04);
+    width: 100%;
+    max-width: 580px;
+    padding: 3rem 2.5rem 2.5rem;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    animation: fadeInReceipt 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInReceipt {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Success Checkmark Circle Badge */
+.receipt-success-badge {
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    background-color: #DCFCE7;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem auto;
+}
+
+.receipt-success-inner {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background-color: #22C55E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(34, 197, 94, 0.32);
+}
+
+.receipt-check-svg {
+    width: 32px;
+    height: 32px;
+    stroke: #FFFFFF;
+    stroke-width: 3.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Headings */
+.receipt-title {
+    color: #22C55E;
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.5rem;
+}
+
+.receipt-subtitle {
+    color: #52525B;
+    font-size: 0.96rem;
+    font-weight: 400;
+    line-height: 1.5;
+    margin-bottom: 1.75rem;
+}
+
+/* Receipt Details Box */
+.receipt-box {
+    background-color: #F8FCFA;
+    border: 1px solid #D1FAE5;
+    border-radius: 12px;
+    padding: 1.25rem 1.25rem;
+    margin-bottom: 1.75rem;
+    text-align: left;
+}
+
+.receipt-box-header {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.65rem;
+}
+
+.receipt-link-icon {
+    width: 18px;
+    height: 18px;
+    color: #372859;
+    flex-shrink: 0;
+}
+
+.receipt-box-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1E293B;
+    letter-spacing: -0.01em;
+}
+
+/* Monospace Transaction Hash Display */
+.receipt-hash-wrapper {
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.receipt-hash-wrapper:hover {
+    border-color: #CBD5E1;
+}
+
+.receipt-hash-text {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 0.9rem;
+    color: #334155;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    user-select: all;
+    letter-spacing: -0.01em;
+}
+
+/* Copy Icon Button */
+.receipt-copy-btn {
+    background: transparent;
+    border: none;
+    color: #64748B;
+    padding: 0.35rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    transition: color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+}
+
+.receipt-copy-btn:hover {
+    color: #2D1F47;
+    background-color: #F1F5F9;
+}
+
+.receipt-copy-btn:active {
+    transform: scale(0.92);
+}
+
+.receipt-copy-btn svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.receipt-copy-btn .check-icon {
+    display: none;
+    color: #16A34A;
+}
+
+.receipt-copy-btn.copied .copy-icon {
+    display: none;
+}
+
+.receipt-copy-btn.copied .check-icon {
+    display: block;
+}
+
+/* Copy Tooltip */
+.receipt-copy-tooltip {
+    position: absolute;
+    top: -30px;
+    right: 50%;
+    transform: translateX(50%) translateY(4px);
+    background-color: #2D1F47;
+    color: #FFFFFF;
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.receipt-copy-btn.copied .receipt-copy-tooltip {
+    opacity: 1;
+    transform: translateX(50%) translateY(0);
+}
+
+/* Shield Checkmark & Thank-you Section */
+.receipt-shield-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.65rem;
+}
+
+.receipt-shield-icon {
+    width: 28px;
+    height: 28px;
+    color: #22C55E;
+}
+
+.receipt-thankyou-main {
+    color: #374151;
+    font-size: 0.94rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.receipt-thankyou-sub {
+    color: #6B7280;
+    font-size: 0.86rem;
+    margin-bottom: 1.75rem;
+}
+
+/* Back to Home Button */
+.btn-back-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    background-color: #372859;
+    color: #FFFFFF;
+    font-size: 0.96rem;
+    font-weight: 600;
+    padding: 0.75rem 2.25rem;
+    border-radius: 8px;
+    border: none;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(55, 40, 89, 0.2);
+    transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-back-home:hover {
+    background-color: #2A1E45;
+    color: #FFFFFF;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(55, 40, 89, 0.28);
+}
+
+.btn-back-home:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(55, 40, 89, 0.2);
+}
+
+.btn-back-home svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Responsive Overrides */
+@media (max-width: 600px) {
+    .receipt-card {
+        padding: 2.25rem 1.25rem 1.75rem;
+        border-radius: 16px;
+    }
+
+    .receipt-title {
+        font-size: 1.55rem;
+    }
+
+    .receipt-subtitle {
+        font-size: 0.88rem;
+    }
+
+    .receipt-hash-text {
+        font-size: 0.82rem;
+    }
+
+    .btn-back-home {
+        width: 100%;
+    }
+}
+
+/* ==========================================================================
+   Admin Login Specific Styles
+   ========================================================================== */
+
+.admin-shield-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.35rem auto;
+}
+
+.admin-shield-icon {
+    width: 62px;
+    height: 70px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 6px 14px rgba(45, 31, 71, 0.22));
+}
+
+.field-label-iconic {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #2D253A;
+    margin-bottom: 0.45rem;
+}
+
+.field-label-icon {
+    width: 16px;
+    height: 16px;
+    color: #372859;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.password-input-group {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-group .login-input {
+    padding-right: 2.75rem;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #5C5872;
+    padding: 0.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.password-toggle-btn:hover {
+    color: #2D1F47;
+    background-color: #F3EDF7;
+}
+
+.password-toggle-btn:focus-visible {
+    outline: 2px solid #372859;
+    outline-offset: 1px;
+}
+
+

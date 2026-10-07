@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import java.util.Arrays;
 
 @Slf4j
 @Configuration
@@ -23,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final Environment environment;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -38,15 +41,20 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         log.info("Initializing SecurityFilterChain configuration");
 
+        boolean swaggerEnabled = Arrays.asList(environment.getActiveProfiles()).contains("dev")
+                && !Arrays.asList(environment.getActiveProfiles()).contains("prod");
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**")
+                        .access((authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(swaggerEnabled))
                         .requestMatchers(HttpMethod.GET,
-                                "/", "/index.html", "/verify.html", "/ballot.html",
-                                "/confirmation.html", "/results.html", "/candidates.html",
+                                "/", "/index.html", "/login.html", "/verify.html", "/ballot.html",
+                                "/receipt.html", "/results.html", "/candidates.html", "/admin-login.html",
                                 "/admin/**", "/css/**", "/js/**", "/images/**", "/favicon.ico")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/positions", "/api/election").permitAll()

@@ -130,6 +130,7 @@ public class ElectionServiceImp implements ElectionService{
                 .id(result.assignedId())
                 .position(position)
                 .name(request.getName())
+                .active(true)
                 .department(request.getDepartment())
                 .photoUrl(null)
                 .build();

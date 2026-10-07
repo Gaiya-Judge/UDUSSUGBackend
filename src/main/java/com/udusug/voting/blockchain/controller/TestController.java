@@ -1,17 +1,26 @@
 package com.udusug.voting.blockchain.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.blockchain.service.VotingContractService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestMapping;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
 
 @Slf4j
 @RestController
+@Tag(name = "Blockchain Test")
 @RequestMapping("/api/test")
 @RequiredArgsConstructor
 public class TestController {

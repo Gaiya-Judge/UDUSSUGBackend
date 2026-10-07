@@ -57,6 +57,11 @@ public class CandidateServiceImp implements CandidateService {
             candidates = candidateRepository.findActiveByPositionAndSessionWithPosition(positionId, currentSessionLabel);
         } else {
             candidates = candidateRepository.findActiveBySessionLabelWithPosition(currentSessionLabel);
+            log.info("candidate are active for the current session label {}", currentSessionLabel);
+        }
+
+        for (Candidate candidate : candidates ) {
+            log.info("candidate name: {} ",candidate.getName());
         }
 
         return candidates.stream()

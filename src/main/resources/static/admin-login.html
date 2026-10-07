@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - UDUS SUG Student Union Elections</title>
+    <meta name="description"
+        content="Administrator Login portal for Usmanu Danfodiyo University Students Union Government Blockchain Voting System.">
+
+    <!-- Typography: Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Institutional Shared Foundation CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Login & Shell CSS -->
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+
+    <!-- Institutional Header (Pre-auth state: simplified shell without session controls) -->
+    <header class="site-header">
+        <div class="container-fluid">
+            <div class="header-brand">
+                <img src="images/udus-logo.png" alt="UDUS University Crest" class="header-logo" width="48" height="48">
+                <div class="header-brand-text">
+                    <span class="brand-university">Usmanu Danfodiyo University</span>
+                    <span class="brand-subtext">SUG Student Union Elections</span>
+                </div>
+            </div>
+            <nav class="header-nav" aria-label="Main Navigation">
+                <a href="index.html" class="header-nav-link">Home</a>
+                <a href="#" class="header-nav-link" tabindex="0">About</a>
+                <a href="#" class="header-nav-link" tabindex="0">FAQ</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area with Campus & Crest Background Overlay -->
+    <main class="login-main-wrapper" id="main-content">
+        <section class="login-card" aria-labelledby="adminLoginHeading">
+            <!-- Security Shield Icon at Top of Card -->
+            <div class="admin-shield-wrapper" aria-hidden="true">
+                <div class="admin-shield-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 60" width="54" height="62" fill="none">
+                        <!-- Purple Shield Body -->
+                        <path d="M26 2 C41 5 48 9 48 27 C48 44 35 54 26 58 C17 54 4 44 4 27 C4 9 11 5 26 2 Z"
+                            fill="#372859" />
+                        <!-- White Padlock Shackle -->
+                        <path d="M20 28 V22.5 C20 19.2 22.7 16.5 26 16.5 C29.3 16.5 32 19.2 32 22.5 V28"
+                            stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" />
+                        <!-- White Padlock Body -->
+                        <rect x="18" y="27" width="16" height="13" rx="2.5" fill="#FFFFFF" />
+                        <!-- Keyhole -->
+                        <circle cx="26" cy="32.5" r="1.6" fill="#372859" />
+                        <polygon points="25.2,32.5 26.8,32.5 27.2,36 24.8,36" fill="#372859" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Card Heading & Supporting Description -->
+            <h1 id="adminLoginHeading" class="login-card-title">Admin Login</h1>
+            <p class="login-card-subtitle">Access the election administration panel.</p>
+
+            <!-- Alert Container for Dynamic Error & Feedback Messaging -->
+            <div id="alertContainer" class="mb-3" aria-live="polite"></div>
+
+            <!-- Admin Authentication Form -->
+            <form id="adminLoginForm" novalidate>
+                <!-- Username / Email Field -->
+                <div class="mb-3 text-start">
+                    <label for="adminEmail" class="field-label-iconic">
+                        <span class="field-label-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"
+                                fill="currentColor">
+                                <path
+                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
+                        </span>
+                        <span>Username</span>
+                    </label>
+                    <input type="text" class="login-input" id="adminEmail" name="email"
+                        placeholder="Enter your username" autocomplete="username" required aria-required="true">
+                </div>
+
+                <!-- Password Field with Show/Hide Toggle -->
+                <div class="mb-3 text-start">
+                    <label for="adminPassword" class="field-label-iconic">
+                        <span class="field-label-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"
+                                fill="currentColor">
+                                <path
+                                    d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                            </svg>
+                        </span>
+                        <span>Password</span>
+                    </label>
+                    <div class="password-input-group">
+                        <input type="password" class="login-input" id="adminPassword" name="password"
+                            placeholder="Enter your password" autocomplete="current-password" required
+                            aria-required="true">
+                        <button type="button" class="password-toggle-btn" id="passwordToggleBtn"
+                            aria-label="Show password" aria-pressed="false" tabindex="0">
+                            <!-- Default Eye Open Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" aria-hidden="true">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="adminLoginSubmitBtn" class="btn-login-submit">
+                    <span>Login</span>
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <!-- Institutional Footer -->
+    <footer class="site-footer">
+        <div class="container-fluid">
+            <p class="footer-copy">&copy; 2025 Usmanu Danfodiyo University. All rights reserved.</p>
+            <p class="footer-pillars">
+                <span>Transparent</span>
+                <span class="pillar-bullet">&bull;</span>
+                <span>Fair</span>
+                <span class="pillar-bullet">&bull;</span>
+                <span>Credible</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Admin Authentication Logic -->
+    <script type="module" src="js/admin-login.js"></script>
+</body>
+
+</html>

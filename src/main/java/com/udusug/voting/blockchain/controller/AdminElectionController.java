@@ -1,22 +1,37 @@
 package com.udusug.voting.blockchain.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.admin.dto.AddCandidateRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.admin.dto.AddPositionRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.admin.dto.AdminWriteResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.admin.dto.SetElectionTimesRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.election.service.ElectionService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.Authentication;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestMapping;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@Tag(name = "Election Administration")
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminElectionController {
