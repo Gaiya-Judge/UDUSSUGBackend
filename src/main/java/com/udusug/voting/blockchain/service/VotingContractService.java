@@ -286,6 +286,15 @@ public class VotingContractService {
         }
     }
 
+    public boolean isTokenUsedOnChain(String tokenHash) {
+        try {
+            return VotingSystem.load(contractAddress, web3j, credentials, new DefaultGasProvider())
+                    .usedTokens(hexStringToByteArray(tokenHash)).send();
+        } catch (Exception e) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to query token status on blockchain");
+        }
+    }
+
     private VotingSystem loadContract() {
         TransactionManager transactionManager = new RawTransactionManager(web3j, credentials, chainId);
         return VotingSystem.load(

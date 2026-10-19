@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Settings - UDUS SUG Student Union Elections</title>
+    <meta name="description"
+        content="Election Settings and scheduling portal for Usmanu Danfodiyo University Students Union Government Blockchain Voting System.">
+
+    <!-- Typography: Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Institutional Shared Foundation CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Admin Shell & Dashboard CSS -->
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+
+    <!-- Institutional Header -->
+    <header class="admin-header">
+        <div class="admin-header-inner">
+            <div class="admin-brand">
+                <img src="images/udus-logo.png" alt="UDUS University Crest" class="admin-logo" width="44" height="44">
+                <div class="admin-brand-text">
+                    <span class="admin-brand-title">Usmanu Danfodiyo University</span>
+                    <span class="admin-brand-sub">SUG Student Union Elections</span>
+                </div>
+            </div>
+
+            <!-- Top-Right Admin Profile & Logout -->
+            <div class="admin-user-nav">
+                <div class="admin-user-pill" title="Signed in administrator">
+                    <div class="admin-user-avatar" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                    </div>
+                    <span class="js-admin-email">admin@udusug.edu.ng</span>
+                </div>
+                <button type="button" class="btn-header-logout js-admin-logout" id="headerLogoutBtn" aria-label="Sign out">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Shell Body: Left Sidebar + Main Content -->
+    <div class="admin-shell-body">
+
+        <!-- Left Sidebar Navigation -->
+        <aside class="admin-sidebar" aria-label="Administration menu">
+            <nav>
+                <ul class="admin-nav-list">
+                    <li>
+                        <a href="admin-dashboard.html" class="admin-nav-item" id="navDashboard">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="candidates.html" class="admin-nav-item" id="navCandidates">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" aria-hidden="true">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span>Candidates</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="election-settings.html" class="admin-nav-item active" id="navElectionSettings"
+                            aria-current="page">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                                </path>
+                            </svg>
+                            <span>Election Settings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="results.html" class="admin-nav-item" id="navResults">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" aria-hidden="true">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg>
+                            <span>Results</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="admin-nav-footer">
+                <button type="button" class="admin-nav-item js-admin-logout" id="sidebarLogoutBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-main-content" id="mainContent">
+
+            <!-- Page Header Row -->
+            <div class="page-header-row">
+                <div>
+                    <h1 class="admin-page-title">Election Settings</h1>
+                    <p class="admin-page-subtitle">Configure the election schedule and positions to be contested.</p>
+                </div>
+
+                <!-- Close Election button (Shown ONLY when status is ENDED and closed is false) -->
+                <button type="button" class="btn-close-election" id="btnCloseElection" style="display: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    <span>Close Election</span>
+                </button>
+            </div>
+
+            <!-- Settings Lock Banner -->
+            <div id="settingsLockBanner" class="admin-locked-banner" role="alert">
+                <svg class="admin-locked-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span id="settingsLockBannerText">Election in progress: settings are locked.</span>
+            </div>
+
+            <!-- 1. Status Banner Card -->
+            <section class="settings-status-card" aria-labelledby="statusBannerHeading">
+                <h2 id="statusBannerHeading" class="visually-hidden">Election Status Overview</h2>
+                <div class="status-banner-grid">
+                    <div class="status-banner-item">
+                        <span class="status-banner-label">Election Status</span>
+                        <div>
+                            <div id="statusBannerBadge" class="badge-status not-scheduled">
+                                <span class="status-dot" aria-hidden="true"></span>
+                                <span id="statusBannerBadgeText">Not Scheduled</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-banner-item">
+                        <span class="status-banner-label">Session</span>
+                        <span class="status-banner-val" id="statusBannerSession">—</span>
+                    </div>
+                    <div class="status-banner-item">
+                        <span class="status-banner-label">Start Time</span>
+                        <span class="status-banner-val" id="statusBannerStart">—</span>
+                    </div>
+                    <div class="status-banner-item">
+                        <span class="status-banner-label">End Time</span>
+                        <span class="status-banner-val" id="statusBannerEnd">—</span>
+                    </div>
+                    <div class="status-banner-item">
+                        <span class="status-banner-label">Contract Lifecycle</span>
+                        <div>
+                            <span id="statusBannerClosed" class="badge-closed-flag open">Open</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Form Cards Grid -->
+            <div class="settings-grid">
+
+                <!-- 2. Session Card -->
+                <section class="settings-card" aria-labelledby="sessionCardHeading">
+                    <div class="settings-card-header">
+                        <div class="settings-card-title-group">
+                            <svg class="table-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <h2 id="sessionCardHeading" class="settings-card-title">Working Session</h2>
+                        </div>
+                    </div>
+                    <p class="settings-card-subtitle">
+                        This session label defines the academic session for scheduling and newly added positions.
+                    </p>
+
+                    <div id="sessionAlert" class="modal-alert" role="alert"></div>
+
+                    <div class="mb-2">
+                        <label for="sessionLabelInput" class="form-label">Session Label <span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="sessionLabelInput"
+                            placeholder="e.g. 2026/2027" style="max-width: 320px;" maxlength="9" autocomplete="off">
+                        <small class="text-muted d-block mt-1">Format: YYYY/YYYY (second year must equal first year + 1).</small>
+                    </div>
+                </section>
+
+                <!-- 3. Schedule Card -->
+                <section class="settings-card" aria-labelledby="scheduleCardHeading">
+                    <div class="settings-card-header">
+                        <div class="settings-card-title-group">
+                            <svg class="table-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <h2 id="scheduleCardHeading" class="settings-card-title">Election Schedule</h2>
+                        </div>
+                    </div>
+                    <p class="settings-card-subtitle">
+                        Configure the exact start and conclusion timeframes for online voting.
+                    </p>
+
+                    <div id="scheduleAlert" class="modal-alert" role="alert"></div>
+
+                    <form id="scheduleForm" novalidate>
+                        <div class="row g-3">
+                            <div class="col-md-6 col-sm-12 text-start">
+                                <label for="scheduleStartTime" class="form-label">Election Start Time <span
+                                        class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="scheduleStartTime" required>
+                            </div>
+                            <div class="col-md-6 col-sm-12 text-start">
+                                <label for="scheduleEndTime" class="form-label">Election End Time <span
+                                        class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="scheduleEndTime" required>
+                            </div>
+                        </div>
+
+                        <!-- Non-blocking past warning note -->
+                        <div id="schedulePastWarningNote" class="settings-warning-note">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" aria-hidden="true">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            <span>Voting will begin immediately.</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-3" id="scheduleSubmitBtn">
+                            Save Election Schedule
+                        </button>
+                    </form>
+                </section>
+
+                <!-- 4. Positions Card -->
+                <section class="settings-card" aria-labelledby="positionsCardHeading">
+                    <div class="settings-card-header">
+                        <div class="settings-card-title-group">
+                            <svg class="table-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                            <h2 id="positionsCardHeading" class="settings-card-title">Contested Positions</h2>
+                        </div>
+                    </div>
+                    <p class="settings-card-subtitle">
+                        Official offices being contested in the current working session.
+                    </p>
+
+                    <!-- Positions Roster Pills Box -->
+                    <div class="positions-roster-box">
+                        <div id="positionsEmptyHint" class="positions-empty-hint">
+                            No positions added yet for this session.
+                        </div>
+                        <ul id="positionsPillsList" class="positions-pills-list">
+                            <!-- Populated dynamically via JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Add Position Form -->
+                    <div class="mt-4">
+                        <h3 style="font-size: 1.05rem; font-weight: 600; color: #1E1533; margin-bottom: 0.75rem;">
+                            Add New Position
+                        </h3>
+
+                        <div id="addPositionAlert" class="modal-alert" role="alert"></div>
+
+                        <!-- Hint shown when election is ended and not closed -->
+                        <div id="addPositionLockHint" class="settings-warning-note mb-3" style="display: none;">
+                            Close the election or schedule the next session before adding positions.
+                        </div>
+
+                        <form id="addPositionForm" novalidate>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-8 col-sm-12">
+                                    <input type="text" class="form-control" id="newPositionName"
+                                        placeholder="e.g. Director of Socials" required autocomplete="off">
+                                </div>
+                                <div class="col-md-4 col-sm-12">
+                                    <button type="submit" class="btn btn-primary w-100" id="addPositionSubmitBtn">
+                                        Add Position
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="settings-info-note">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            <span>Positions cannot be edited or removed once added.</span>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- 5. CLOSE ELECTION CONFIRMATION MODAL                           -->
+    <!-- ============================================================= -->
+    <div class="modal fade" id="closeElectionModal" tabindex="-1" aria-labelledby="closeElectionModalLabel"
+        aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title text-danger" id="closeElectionModalLabel">Finalize &amp; Close Election</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="closeModalAlert" class="modal-alert" role="alert"></div>
+                    <p class="mb-2" style="font-size: 1.02rem; color: #1E1533;">
+                        Closing the election submits a permanent housekeeping transaction to the blockchain,
+                        finalizes voting tallies, and archives the session.
+                    </p>
+                    <p class="text-danger mb-0" style="font-size: 0.9rem;">
+                        <strong>Warning:</strong> This action cannot be undone. Once closed, voters can no longer cast ballots
+                        and a new session must be scheduled to begin the next election cycle.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" id="closeModalCancelBtn"
+                        data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmCloseElectionBtn">
+                        Confirm Close Election
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="adminToastContainer" class="admin-toast-container" aria-live="polite"></div>
+
+    <!-- Institutional Footer -->
+    <footer class="site-footer">
+        <div class="container-fluid">
+            <p class="footer-copy">&copy; 2025 Usmanu Danfodiyo University. All rights reserved.</p>
+            <p class="footer-pillars">
+                <span>Transparent</span>
+                <span class="pillar-bullet">&bull;</span>
+                <span>Fair</span>
+                <span class="pillar-bullet">&bull;</span>
+                <span>Credible</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Shared Foundation JS -->
+    <script type="module" src="js/admin-common.js"></script>
+
+    <!-- Admin Settings Logic -->
+    <script type="module" src="js/admin-settings.js"></script>
+</body>
+
+</html>

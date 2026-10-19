@@ -22,5 +22,7 @@ public interface VotingTokenService {
     /**
      * Marks a verified voting token as used after successful vote submission on-chain.
      */
-    void markUsed(VotingToken votingToken);
+    void markUsed(VotingToken votingToken, String transactionHash);
+
+    TokenStatusResponse getTokenStatus(String rawToken);
 }

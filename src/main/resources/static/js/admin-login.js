@@ -2,13 +2,12 @@
  * UDUS SUG Blockchain Voting System - Admin Authentication
  *
  * Handles administrator login:
- * - Validates username/email and password inputs
- * - Toggles password field visibility (type="password" / type="text")
+ * - Validates username/email and password inputs (inline field errors)
+ * - Toggles password field visibility
  * - Submits payload { email, password } to POST /api/admin/auth/login
  * - Stores bearer token and session metadata in sessionStorage upon HTTP 200
  * - Redirects to admin dashboard
- * - Displays clear, distinct inline error messages for 401 (invalid credentials)
- *   and 423 (account locked)
+ * - Displays Pop-ups for 401 (Incorrect email or password), 423 (Account locked), and network/5xx
  */
 
 import { apiRequest } from "./api.js";
@@ -38,24 +37,43 @@ document.addEventListener("DOMContentLoaded", () => {
             passwordToggleBtn.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
             passwordToggleBtn.setAttribute("aria-pressed", isPassword ? "true" : "false");
 
-            // Update eye icon SVG
+            passwordToggleBtn.replaceChildren();
+
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("width", "18");
+            svg.setAttribute("height", "18");
+            svg.setAttribute("viewBox", "0 0 24 24");
+            svg.setAttribute("fill", "none");
+            svg.setAttribute("stroke", "currentColor");
+            svg.setAttribute("stroke-width", "2");
+            svg.setAttribute("stroke-linecap", "round");
+            svg.setAttribute("stroke-linejoin", "round");
+            svg.setAttribute("aria-hidden", "true");
+
             if (isPassword) {
-                // Eye Off (slashed) icon
-                passwordToggleBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                        <line x1="1" y1="1" x2="23" y2="23"></line>
-                    </svg>
-                `;
+                // Eye Off icon
+                const p1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                p1.setAttribute("d", "M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24");
+                const l1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                l1.setAttribute("x1", "1");
+                l1.setAttribute("y1", "1");
+                l1.setAttribute("x2", "23");
+                l1.setAttribute("y2", "23");
+                svg.appendChild(p1);
+                svg.appendChild(l1);
             } else {
                 // Eye Open icon
-                passwordToggleBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                `;
+                const p1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                p1.setAttribute("d", "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z");
+                const c1 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                c1.setAttribute("cx", "12");
+                c1.setAttribute("cy", "12");
+                c1.setAttribute("r", "3");
+                svg.appendChild(p1);
+                svg.appendChild(c1);
             }
+
+            passwordToggleBtn.appendChild(svg);
         });
     }
 
@@ -71,13 +89,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Clear previous alerts
-        alertContainer.innerHTML = "";
+        alertContainer.replaceChildren();
 
         const email = emailInput.value.trim();
         const password = passwordInput.value;
 
-        // Client-side empty validation
+        // Field validation stays inline next to field
         if (!email) {
             showAlert(alertContainer, "Please enter your username or email address.", "danger");
             emailInput.focus();
@@ -103,62 +120,97 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (response.ok && response.status === 200 && response.data) {
-                // 1. Store authentication token in sessionStorage (matching project pattern)
+                // Store authentication token in sessionStorage
                 const { token, tokenType = "Bearer", expiresInMs, email: adminEmail } = response.data;
                 sessionStorage.setItem("adminToken", token);
                 sessionStorage.setItem("adminTokenType", tokenType);
-                if (adminEmail) {
-                    sessionStorage.setItem("adminEmail", adminEmail);
+                const finalEmail = adminEmail || email;
+                if (finalEmail) {
+                    sessionStorage.setItem("adminEmail", finalEmail);
                 }
                 if (expiresInMs) {
                     sessionStorage.setItem("adminExpiresInMs", String(expiresInMs));
                     sessionStorage.setItem("adminTokenExpiresAt", String(Date.now() + Number(expiresInMs)));
                 }
 
-                // 2. Redirect to admin dashboard
-                window.location.href = "admin/dashboard.html";
+                // Redirect to admin dashboard
+                window.location.href = "admin-dashboard.html";
                 return;
             }
 
-            // ---------------------------------------------------------
-            // Error Handling: Distinct inline messages
-            // ---------------------------------------------------------
+            // Error handling matching Part B specification with Pop-ups
             if (response.status === 401) {
-                // Invalid credentials
-                const msg = (response.data && response.data.message)
-                    ? response.data.message
-                    : "Invalid email/username or password. Please verify your credentials and try again.";
-                showAlert(alertContainer, msg, "danger");
-                passwordInput.value = "";
-                passwordInput.focus();
+                // 401 -> error, "Incorrect email or password" [Try again]
+                window.UdusPopup.show({
+                    type: "error",
+                    icon: "error",
+                    title: "Incorrect email or password",
+                    message: "Invalid email/username or password. Please verify your credentials and try again.",
+                    primary: {
+                        label: "Try again",
+                        onClick: () => {
+                            window.UdusPopup.close();
+                            passwordInput.value = "";
+                            passwordInput.focus();
+                        }
+                    },
+                    dismissible: true
+                });
             } else if (response.status === 423) {
-                // Account locked
-                const lockMsg = (response.data && response.data.message)
-                    ? response.data.message
-                    : "This account has been locked due to consecutive failed login attempts. Please try again in 15 minutes or contact system support.";
-                showAlert(alertContainer, lockMsg, "danger");
-            } else if (response.status === 400) {
-                // Validation error (e.g. invalid email format)
-                let errorText = "Please provide a valid email address.";
-                if (response.data && response.data.validationErrors && response.data.validationErrors.email) {
-                    errorText = response.data.validationErrors.email;
-                } else if (response.data && response.data.message) {
-                    errorText = response.data.message;
-                }
-                showAlert(alertContainer, errorText, "danger");
-            } else if (response.status === 0) {
-                // Network unreachable
-                showAlert(alertContainer, "Unable to reach the authentication server. Please check your connection and try again.", "danger");
+                // 423 -> lock, "Account locked", backend message [OK]
+                const rawMsg = (response.data && response.data.message) || "";
+                const safeMsg = window.UdusPopup.safeMessage(response.status, rawMsg, "This account has been locked due to consecutive failed login attempts. Please try again in 15 minutes or contact system support.");
+                window.UdusPopup.show({
+                    type: "error",
+                    icon: "lock",
+                    title: "Account locked",
+                    message: safeMsg,
+                    primary: {
+                        label: "OK",
+                        onClick: () => window.UdusPopup.close()
+                    },
+                    dismissible: true
+                });
+            } else if (response.status === 0 || response.status >= 500) {
+                // Network or 5xx -> offline, "Connection problem"
+                window.UdusPopup.show({
+                    type: "error",
+                    icon: "offline",
+                    title: "Connection problem",
+                    message: "We could not reach the server. Check your internet connection and try again.",
+                    primary: {
+                        label: "Try again",
+                        onClick: () => window.UdusPopup.close()
+                    },
+                    dismissible: true
+                });
             } else {
-                // Other server errors
-                let errorText = "An error occurred during login. Please try again.";
-                if (response.data && typeof response.data === "object" && response.data.message) {
-                    errorText = response.data.message;
-                }
-                showAlert(alertContainer, errorText, "danger");
+                const rawMsg = (response.data && response.data.message) || "";
+                const safeMsg = window.UdusPopup.safeMessage(response.status, rawMsg, "An error occurred during login. Please try again.");
+                window.UdusPopup.show({
+                    type: "error",
+                    icon: "error",
+                    title: "Login failed",
+                    message: safeMsg,
+                    primary: {
+                        label: "OK",
+                        onClick: () => window.UdusPopup.close()
+                    },
+                    dismissible: true
+                });
             }
-        } catch (error) {
-            showAlert(alertContainer, "An unexpected error occurred. Please try again.", "danger");
+        } catch {
+            window.UdusPopup.show({
+                type: "error",
+                icon: "offline",
+                title: "Connection problem",
+                message: "We could not reach the server. Check your internet connection and try again.",
+                primary: {
+                    label: "Try again",
+                    onClick: () => window.UdusPopup.close()
+                },
+                dismissible: true
+            });
         } finally {
             isSubmitting = false;
             setButtonLoading(submitBtn, false);

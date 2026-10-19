@@ -1,9 +1,13 @@
 /**
- * UDUS SUG Blockchain Voting System - Vote Success Receipt Page Logic
+ * UDUS SUG Blockchain Voting System - Vote Success Receipt Page Logic (Part C Item 4)
  * Handles dynamic receipt transaction hash display and clipboard copying.
  */
 
+import { clearVotingToken, getReceipt } from "./voter-session.js";
+
 document.addEventListener("DOMContentLoaded", () => {
+    // Clear stored voting token on success per specification
+    clearVotingToken();
     initReceiptPage();
 });
 
@@ -12,22 +16,46 @@ function initReceiptPage() {
     const copyBtn = document.getElementById("copyBtn");
     const copyTooltip = document.getElementById("copyTooltip");
 
-    // 1. Retrieve transaction hash from query params or sessionStorage
+    // 1. Retrieve transaction hash per priority: query params -> sessionStorage -> localStorage udus_receipt -> fallback
     const urlParams = new URLSearchParams(window.location.search);
     const queryHash = urlParams.get("txHash") || urlParams.get("hash") || urlParams.get("receiptId");
     const sessionHash = sessionStorage.getItem("lastTxHash");
+    const localReceipt = getReceipt();
 
-    // Use actual hash from ballot submission; fallback to reference sample if absent
+    const isExplicitlyUnavailable = urlParams.get("unavailable") === "1" ||
+        sessionHash === "UNAVAILABLE" ||
+        (localReceipt && localReceipt.unavailable === true);
+
     const defaultPlaceholderHash = "0x7a3f9e2c4b8d1f6e9a2c3d4e5f6a7b8c9d0e1f2a";
-    const actualHash = (queryHash && queryHash.trim()) || (sessionHash && sessionHash.trim()) || defaultPlaceholderHash;
+
+    let actualHash = "";
+    if (queryHash && queryHash.trim()) {
+        actualHash = queryHash.trim();
+    } else if (sessionHash && sessionHash.trim() && sessionHash !== "UNAVAILABLE") {
+        actualHash = sessionHash.trim();
+    } else if (localReceipt && localReceipt.txHash && localReceipt.txHash.trim()) {
+        actualHash = localReceipt.txHash.trim();
+    }
 
     if (txHashDisplay) {
-        txHashDisplay.textContent = actualHash;
-        txHashDisplay.setAttribute("title", actualHash);
+        if (isExplicitlyUnavailable && !actualHash) {
+            // Part C Item 4: "Your vote was recorded. The receipt ID is not available on this device."
+            txHashDisplay.textContent = "Your vote was recorded. The receipt ID is not available on this device.";
+            txHashDisplay.style.fontSize = "0.95rem";
+            txHashDisplay.style.fontWeight = "500";
+            txHashDisplay.style.wordBreak = "normal";
+            if (copyBtn) {
+                copyBtn.style.display = "none";
+            }
+        } else {
+            const finalHash = actualHash || defaultPlaceholderHash;
+            txHashDisplay.textContent = finalHash;
+            txHashDisplay.setAttribute("title", finalHash);
+        }
     }
 
     // 2. Setup Copy to Clipboard functionality
-    if (copyBtn && txHashDisplay) {
+    if (copyBtn && txHashDisplay && (!isExplicitlyUnavailable || actualHash)) {
         let copyTimeout = null;
 
         copyBtn.addEventListener("click", async () => {
@@ -40,8 +68,7 @@ function initReceiptPage() {
                 try {
                     await navigator.clipboard.writeText(textToCopy);
                     copiedSuccessfully = true;
-                } catch (err) {
-                    console.warn("Clipboard API write failed, attempting fallback:", err);
+                } catch {
                     copiedSuccessfully = fallbackCopyText(textToCopy);
                 }
             } else {
@@ -87,8 +114,7 @@ function fallbackCopyText(text) {
         const success = document.execCommand("copy");
         document.body.removeChild(textArea);
         return success;
-    } catch (e) {
-        console.error("Fallback clipboard copy failed:", e);
+    } catch {
         return false;
     }
 }

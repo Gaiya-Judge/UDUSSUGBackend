@@ -31,4 +31,6 @@ public class VotingToken {
 
     @Column(nullable = false)
     private LocalDateTime expiresAt;
+
+    private String transactionHash;
 }

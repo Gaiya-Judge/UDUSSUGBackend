@@ -1,0 +1,253 @@
+/* ==========================================================================
+   UDUS SUG Blockchain Voting System - Reusable Error/Notice Pop-up Component
+   Z-Index 2000 (overlays Bootstrap modals). Built to match institutional design.
+   ========================================================================== */
+
+/* Dimmed Backdrop Overlay */
+.udus-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.62);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    opacity: 0;
+    animation: udusPopupFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Centered Dialog Card */
+.udus-popup-card {
+    background-color: var(--surface, #FFFFFF);
+    width: 100%;
+    max-width: 440px;
+    border-radius: 16px;
+    border: 1px solid rgba(85, 45, 120, 0.12);
+    box-shadow: 0 20px 45px -8px rgba(35, 25, 66, 0.22), 0 8px 18px -4px rgba(35, 25, 66, 0.12);
+    padding: 2.25rem 2rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+    outline: none;
+    transform: scale(0.95) translateY(6px);
+    animation: udusPopupScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* -------------------------------------------------------------
+   Badge Rings (Built matching receipt.html badge ring)
+   ------------------------------------------------------------- */
+.udus-popup-badge-ring {
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.35rem auto;
+}
+
+.udus-popup-badge-inner {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.udus-popup-icon-svg {
+    width: 28px;
+    height: 28px;
+    stroke: #FFFFFF;
+    color: #FFFFFF;
+}
+
+/* Status Type Theming */
+/* Error = Red */
+.udus-popup-type-error .udus-popup-badge-ring {
+    background-color: var(--danger-bg, #FFEBEE);
+}
+.udus-popup-type-error .udus-popup-badge-inner {
+    background-color: var(--danger, #DC3545);
+    box-shadow: 0 4px 14px rgba(220, 53, 69, 0.35);
+}
+
+/* Warning = Amber */
+.udus-popup-type-warning .udus-popup-badge-ring {
+    background-color: var(--warning-bg, #FEF3C7);
+}
+.udus-popup-type-warning .udus-popup-badge-inner {
+    background-color: var(--warning, #D97706);
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
+}
+
+/* Info = Purple */
+.udus-popup-type-info .udus-popup-badge-ring {
+    background-color: var(--udus-purple-subtle, #F5EDF6);
+}
+.udus-popup-type-info .udus-popup-badge-inner {
+    background-color: var(--udus-purple, #4A154B);
+    box-shadow: 0 4px 14px rgba(74, 21, 75, 0.35);
+}
+
+/* Success = Green (strictly for success) */
+.udus-popup-type-success .udus-popup-badge-ring {
+    background-color: var(--success-bg, #E8F5E9);
+}
+.udus-popup-type-success .udus-popup-badge-inner {
+    background-color: var(--success, #198754);
+    box-shadow: 0 4px 14px rgba(25, 135, 84, 0.35);
+}
+
+/* -------------------------------------------------------------
+   Typography
+   ------------------------------------------------------------- */
+.udus-popup-title {
+    color: #1E1533;
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    margin: 0 0 0.65rem 0;
+}
+
+.udus-popup-message {
+    color: var(--text-muted, #64748B);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin: 0 0 1.75rem 0;
+    word-break: break-word;
+}
+
+/* -------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------- */
+.udus-popup-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.udus-popup-btn {
+    flex: 1;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.4;
+    padding: 0.72rem 1.25rem;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    border: 1.5px solid transparent;
+}
+
+.udus-popup-btn:active {
+    transform: translateY(1px);
+}
+
+/* Primary Purple Button */
+.udus-popup-btn-primary {
+    background-color: var(--udus-purple, #4A154B);
+    border-color: var(--udus-purple, #4A154B);
+    color: #FFFFFF;
+}
+
+.udus-popup-btn-primary:hover,
+.udus-popup-btn-primary:focus-visible {
+    background-color: var(--udus-purple-dark, #310D32);
+    border-color: var(--udus-purple-dark, #310D32);
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.udus-popup-btn-primary:focus-visible {
+    outline: 2px solid #7C3AED;
+    outline-offset: 2px;
+}
+
+/* Secondary Outline Button */
+.udus-popup-btn-secondary {
+    background-color: transparent;
+    border-color: var(--udus-purple, #4A154B);
+    color: var(--udus-purple, #4A154B);
+}
+
+.udus-popup-btn-secondary:hover,
+.udus-popup-btn-secondary:focus-visible {
+    background-color: var(--udus-purple-subtle, #F5EDF6);
+    color: var(--udus-purple-dark, #310D32);
+    text-decoration: none;
+}
+
+.udus-popup-btn-secondary:focus-visible {
+    outline: 2px solid #7C3AED;
+    outline-offset: 2px;
+}
+
+/* Single button stretches to fit nicely */
+.udus-popup-actions.single-btn .udus-popup-btn {
+    flex: 1;
+    width: 100%;
+}
+
+/* -------------------------------------------------------------
+   Animations & Responsive Breakpoints
+   ------------------------------------------------------------- */
+@keyframes udusPopupFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes udusPopupScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@media (max-width: 576px) {
+    .udus-popup-overlay {
+        padding: 1rem;
+    }
+
+    .udus-popup-card {
+        padding: 1.75rem 1.25rem 1.5rem 1.25rem;
+        max-width: 100%;
+    }
+
+    .udus-popup-actions {
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .udus-popup-btn {
+        width: 100%;
+        flex: auto;
+    }
+}
+
+/* Prefers-reduced-motion: disable animations */
+@media (prefers-reduced-motion: reduce) {
+    .udus-popup-overlay,
+    .udus-popup-card {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+    }
+}

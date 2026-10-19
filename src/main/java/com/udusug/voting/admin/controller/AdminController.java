@@ -1,29 +1,16 @@
 package com.udusug.voting.admin.controller;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.admin.dto.AdminCandidateResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.admin.dto.AdminWriteResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.admin.dto.UpdateCandidateRequest;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.election.service.CandidateService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import com.udusug.voting.election.service.ElectionService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.Authentication;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 
 @Slf4j
@@ -36,10 +23,11 @@ public class AdminController {
     private final CandidateService candidateService;
 
     @GetMapping
-    public ResponseEntity<List<AdminCandidateResponse>> getAllCandidateForAdmin() {
-        log.info("HTTP GET /admin/candidates request received (public endpoint)");
+    public ResponseEntity<List<AdminCandidateResponse>> getAllCandidateForAdmin(
+            @RequestParam(required = false) String sessionLabel) {
+        log.info("HTTP GET /api/admin/candidates request received for sessionLabel={}", sessionLabel);
 
-        List<AdminCandidateResponse> response = candidateService.getAllCandidatesForAdmin();
+        List<AdminCandidateResponse> response = candidateService.getAllCandidatesForAdmin(sessionLabel);
         return ResponseEntity.ok(response);
     }
 

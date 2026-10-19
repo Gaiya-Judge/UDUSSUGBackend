@@ -906,4 +906,100 @@ body {
     outline-offset: 1px;
 }
 
+/* -------------------------------------------------------------
+   Vote In Progress Banner (Part C item 5)
+   ------------------------------------------------------------- */
+.vote-in-progress-banner {
+    background-color: var(--udus-purple-subtle, #F5EDF6);
+    border: 1px solid rgba(74, 21, 75, 0.2);
+    border-radius: 12px;
+    padding: 1.15rem 1rem;
+    margin-bottom: 1.35rem;
+    text-align: center;
+}
+
+.vote-in-progress-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #231942;
+    margin: 0 0 0.75rem 0;
+}
+
+.vote-in-progress-actions {
+    display: flex;
+    gap: 0.65rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-banner-action {
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 0.5rem 0.95rem;
+    border-radius: 7px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.btn-banner-action.primary {
+    background-color: var(--udus-purple, #4A154B);
+    border: 1px solid var(--udus-purple, #4A154B);
+    color: #FFFFFF;
+}
+
+.btn-banner-action.primary:hover {
+    background-color: var(--udus-purple-dark, #310D32);
+    border-color: var(--udus-purple-dark, #310D32);
+    color: #FFFFFF;
+}
+
+.btn-banner-action.secondary {
+    background-color: transparent;
+    border: 1px solid var(--udus-purple, #4A154B);
+    color: var(--udus-purple, #4A154B);
+}
+
+.btn-banner-action.secondary:hover {
+    background-color: rgba(74, 21, 75, 0.08);
+    color: var(--udus-purple-dark, #310D32);
+}
+
+.banner-clear-link {
+    display: inline-block;
+    margin-top: 0.65rem;
+    font-size: 0.82rem;
+    color: var(--text-muted, #64748B);
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.banner-clear-link:hover {
+    color: var(--udus-purple, #4A154B);
+}
+
+/* Header Clear Session Link (Part C item 6) */
+.header-clear-session-link {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.84rem;
+    font-weight: 500;
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0.35rem 0.5rem;
+    transition: color 0.15s ease;
+}
+
+.header-clear-session-link:hover {
+    color: #FFFFFF;
+}
+
+
 

@@ -5,6 +5,12 @@ import com.udusug.voting.voter.dto.OtpVerifyResponse;
 import com.udusug.voting.voter.entity.VoterRoll;
 import com.udusug.voting.token.entity.VotingToken;
 import com.udusug.voting.voter.repository.VoterRollRepository;
+import com.udusug.voting.election.repository.ElectionRepository;
+import com.udusug.voting.election.entity.Election;
+import com.udusug.voting.election.service.ElectionStatusResolver;
+import com.udusug.voting.blockchain.service.VotingContractService;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import com.udusug.voting.token.repository.VotingTokenRepository;
 import com.udusug.voting.voter.util.HashUtils;
 import lombok.RequiredArgsConstructor;
@@ -26,57 +32,28 @@ public class VotingTokenServiceImp implements  VotingTokenService {
 
     private final VotingTokenRepository votingTokenRepository;
     private final VoterRollRepository voterRollRepository;
+    private final ElectionRepository electionRepository;
+    private final VotingContractService votingContractService;
 
     @Override
     @Transactional
     public OtpVerifyResponse issueToken(VoterRoll voter) {
-
-        LocalDateTime now = LocalDateTime.now();
-
-        // Check active lock status
-        if (voter.isTokenLockActive()) {
-            if (voter.getTokenIssuedAt() != null && voter.getTokenIssuedAt().plusMinutes(SESSION_TIMEOUT_MINUTES).isAfter(now)) {
-                log.warn("Token issuance rejected: Admission number [{}] already has an active session lock", voter.getAdmissionNumber());
-                throw new ApiException(HttpStatus.CONFLICT, "An active voting token has already been issued for this admission number");
-            }
-            // Lock active but window has expired -> release lock so new token can be generated
-            log.info("Expired token lock released for admission number [{}]", voter.getAdmissionNumber());
+        Election election = electionRepository.findFirstByOrderByIdDesc().orElse(null);
+        if (!"ONGOING".equals(ElectionStatusResolver.resolve(election, OffsetDateTime.now(ZoneId.of("Africa/Lagos"))))) {
+            throw new ApiException(HttpStatus.CONFLICT, "Voting is not open right now.");
         }
-
-        // 1. Update VoterRoll lock BEFORE boundary (no token raw or hash stored here!)
-        voter.setTokenLockActive(true);
-        voter.setTokenIssuedAt(now);
-        voterRollRepository.save(voter);
-        log.info("VoterRoll token lock initialized for admission number [{}]", voter.getAdmissionNumber());
-
-        // ======================== ANONYMITY BOUNDARY ========================
-
-        // 2. Generate 32-byte cryptographically secure random value (NFR11)
+        if (voterRollRepository.claimBallot(voter.getId(), election.getSessionLabel()) == 0) {
+            throw new ApiException(HttpStatus.CONFLICT, "A ballot has already been issued for this admission number in this session. If you were disconnected while voting, use 'Check my vote' on the same device, or contact the SUG ICT Team.");
+        }
+        LocalDateTime now = LocalDateTime.now();
         byte[] randomBytes = new byte[32];
         SECURE_RANDOM.nextBytes(randomBytes);
         String rawToken = "0x" + bytesToHex(randomBytes);
-
-        // 3. Hash raw token and store ONLY the hash in database
         String tokenHash = HashUtils.sha256(rawToken);
         LocalDateTime expiresAt = now.plusMinutes(SESSION_TIMEOUT_MINUTES);
-
-        VotingToken votingToken = VotingToken.builder()
-                .tokenHash(tokenHash)
-                .issuedAt(now)
-                .used(false)
-                .expiresAt(expiresAt)
-                .build();
-
-        votingTokenRepository.save(votingToken);
-
-        // Logging compliance: Log token event referencing ONLY a short hash prefix (NO voter ID)
-        log.info("Voting token issued successfully (Hash prefix: {})", tokenHash.substring(0, 10));
-
-        // 4. Return raw token payload strictly for transmission to frontend
-        return OtpVerifyResponse.builder()
-                .votingToken(rawToken)
-                .expiresAt(expiresAt)
-                .build();
+        votingTokenRepository.save(VotingToken.builder().tokenHash(tokenHash).issuedAt(now).used(false).expiresAt(expiresAt).build());
+        log.info("Voting token issued successfully");
+        return OtpVerifyResponse.builder().votingToken(rawToken).expiresAt(expiresAt).build();
     }
 
     @Override
@@ -111,12 +88,35 @@ public class VotingTokenServiceImp implements  VotingTokenService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public void markUsed(VotingToken votingToken) {
+    @Transactional
+    public void markUsed(VotingToken votingToken, String transactionHash) {
         votingToken.setUsed(true);
+        votingToken.setTransactionHash(transactionHash);
         votingTokenRepository.save(votingToken);
-        log.info("Voting token marked as used in local database (Hash prefix: {})", votingToken.getTokenHash().substring(0, 10));
+        log.info("Voting token marked as used in local database");
 
+    }
+
+    @Override
+    @Transactional
+    public TokenStatusResponse getTokenStatus(String rawToken) {
+        if (rawToken == null || rawToken.isBlank()) throw new ApiException(HttpStatus.BAD_REQUEST, "Voting token is required");
+        String hash = HashUtils.sha256(rawToken.trim());
+        VotingToken token = votingTokenRepository.findByTokenHash(hash).orElse(null);
+        if (token == null) return new TokenStatusResponse("UNKNOWN", null, null);
+        if (token.isUsed()) return new TokenStatusResponse("USED", token.getExpiresAt(), token.getTransactionHash());
+        try {
+            if (votingContractService.isTokenUsedOnChain(hash)) {
+                token.setUsed(true);
+                token.setTransactionHash(null);
+                votingTokenRepository.save(token);
+                return new TokenStatusResponse("USED", token.getExpiresAt(), null);
+            }
+        } catch (Exception ex) {
+            log.warn("On-chain token status read failed; using local token state");
+        }
+        if (LocalDateTime.now().isAfter(token.getExpiresAt())) return new TokenStatusResponse("EXPIRED", token.getExpiresAt(), null);
+        return new TokenStatusResponse("VALID", token.getExpiresAt(), null);
     }
 
     private static String bytesToHex(byte[] bytes) {

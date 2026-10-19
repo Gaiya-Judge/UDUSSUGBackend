@@ -30,8 +30,5 @@ public class VoterRoll {
     @Column(nullable = false)
     private EligibilityStatus eligibilityStatus;
 
-    private LocalDateTime tokenIssuedAt;
-
-    @Column(nullable = false)
-    private boolean tokenLockActive;
+    private String ballotSession;
 }

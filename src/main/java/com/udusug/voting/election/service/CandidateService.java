@@ -15,7 +15,7 @@ public interface CandidateService {
      */
     List<CandidateResponse> getAllCandidates(Long positionId);
 
-    List<AdminCandidateResponse> getAllCandidatesForAdmin();
+    List<AdminCandidateResponse> getAllCandidatesForAdmin(String sessionLabel);
 
     AdminWriteResponse updateCandidate(String adminEmail, Long candidateId, UpdateCandidateRequest request);
 

@@ -13,9 +13,8 @@ public class AdminCandidateResponse {
 
     private Long id;
     private String name;
-    private String photoUrl;
-    private Boolean active;
     private String department;
     private Long positionId;
     private String positionName;
+    private String sessionLabel;
 }

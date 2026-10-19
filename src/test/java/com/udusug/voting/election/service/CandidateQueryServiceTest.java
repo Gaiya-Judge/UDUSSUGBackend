@@ -46,11 +46,13 @@ class CandidateQueryServiceTest {
         verify(candidates).findActiveBySessionLabelWithPosition("2026/2027");
     }
 
-    @Test void adminListRetainsInactiveRowsAndPopulatesPositionName() {
-        when(candidates.findAllWithPosition()).thenReturn(List.of(candidate(1, true), candidate(2, false)));
-        var result = service.getAllCandidatesForAdmin();
-        assertEquals(2, result.size());
-        assertFalse(result.get(1).getActive());
-        assertEquals("President", result.get(1).getPositionName());
+    @Test void adminListUsesWorkingSessionAndReturnsActiveCandidatesOnly() {
+        when(positions.findAllByOrderByIdAsc()).thenReturn(List.of(Position.builder().sessionLabel("2031/2032").build()));
+        when(candidates.findActiveForSession("2031/2032")).thenReturn(List.of(candidate(1, true)));
+        var result = service.getAllCandidatesForAdmin(null);
+        assertEquals(1, result.size());
+        assertEquals("President", result.getFirst().getPositionName());
+        assertEquals("2026/2027", result.getFirst().getSessionLabel());
+        verify(candidates).findActiveForSession("2031/2032");
     }
 }

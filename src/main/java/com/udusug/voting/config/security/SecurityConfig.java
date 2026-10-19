@@ -53,8 +53,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**")
                         .access((authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(swaggerEnabled))
                         .requestMatchers(HttpMethod.GET,
-                                "/", "/index.html", "/login.html", "/verify.html", "/ballot.html",
-                                "/receipt.html", "/results.html", "/candidates.html", "/admin-login.html",
+                                "/", "/index.html", "/about.html", "/faq.html", "/login.html", "/verify.html", "/ballot.html",
+                                "/receipt.html", "/results.html", "/candidates.html", "/admin-login.html", "/admin-dashboard.html", "/election-settings.html",
                                 "/admin/**", "/css/**", "/js/**", "/images/**", "/favicon.ico")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/positions", "/api/election").permitAll()
@@ -68,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/voter/**",
                                 "/api/vote",
+                                "/api/vote/token-status",
                                 "/api/candidates",
                                 "/api/results/**",
                                 "/api/turnout"

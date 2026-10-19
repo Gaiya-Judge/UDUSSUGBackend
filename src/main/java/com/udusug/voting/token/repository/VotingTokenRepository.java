@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface VotingTokenRepository extends JpaRepository<VotingToken, Long> {
     Optional<VotingToken> findByTokenHash(String tokenHash);
+    long countByUsedFalseAndExpiresAtAfterAndIssuedAtGreaterThanEqual(java.time.LocalDateTime now, java.time.LocalDateTime start);
+    long countByUsedFalseAndExpiresAtBeforeAndIssuedAtGreaterThanEqual(java.time.LocalDateTime now, java.time.LocalDateTime start);
 }

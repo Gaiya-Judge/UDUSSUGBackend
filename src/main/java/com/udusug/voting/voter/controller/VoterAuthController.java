@@ -16,6 +16,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.voter.service.OtpService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.voter.service.VoterAuthService;
+import com.udusug.voting.election.repository.ElectionRepository;
+import com.udusug.voting.election.entity.Election;
+import com.udusug.voting.election.service.ElectionStatusResolver;
+import com.udusug.voting.exception.ApiException;
+import org.springframework.http.HttpStatus;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,6 +50,7 @@ public class VoterAuthController {
     private final VoterAuthService voterAuthService;
     private final OtpService otpService;
     private final EmailService emailService;
+    private final ElectionRepository electionRepository;
 
     @PostMapping("/login")
     public ResponseEntity<VoterLoginResponse> login(@Valid @RequestBody VoterLoginRequest request) {
@@ -50,6 +58,11 @@ public class VoterAuthController {
 
         // 1. Validate admission number & active status
         VoterRoll voter = voterAuthService.checkAdmissionNumber(request.getAdmissionNumber());
+
+        Election latest = electionRepository.findFirstByOrderByIdDesc().orElse(null);
+        if (!"ONGOING".equals(ElectionStatusResolver.resolve(latest, OffsetDateTime.now(ZoneId.of("Africa/Lagos"))))) {
+            throw new ApiException(HttpStatus.CONFLICT, "Voting is not open right now.");
+        }
 
         // 2. Generate 6-digit numeric OTP & persist SHA-256 hash (5 min expiry)
         String rawOtp = otpService.generateAndSaveOtp(voter);
@@ -67,7 +80,7 @@ public class VoterAuthController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<OtpVerifyResponse> verifyOtp(@Valid @RequestBody OtpVerifyRequest request) {
-        log.info("HTTP POST /api/voter/auth/verify-otp received for admission number: {}", request.getAdmissionNumber());
+        log.info("HTTP POST /api/voter/auth/verify-otp received");
 
         OtpVerifyResponse response = otpService.verifyOtp(request.getAdmissionNumber(), request.getOtpCode());
 

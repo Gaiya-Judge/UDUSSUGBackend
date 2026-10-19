@@ -15,5 +15,7 @@ public class ElectionResponse {
     private String sessionLabel;
     private OffsetDateTime startTime;
     private OffsetDateTime endTime;
-    private boolean closed;
+    private Boolean closed;
+    private String status;
+    private OffsetDateTime serverTime;
 }

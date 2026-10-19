@@ -1,0 +1,1367 @@
+/* ==========================================================================
+   UDUS SUG Blockchain Voting System - Admin Portal CSS Foundation
+   Shell layout (header, sidebar, content area, cards, badges, tables)
+   Matching institutional purple #2D1F47 design language
+   ========================================================================== */
+
+/* -------------------------------------------------------------
+   CSS Variables
+   ------------------------------------------------------------- */
+:root {
+    --admin-purple-dark: #201636;
+    --admin-purple-header: #2D1F47;
+    --admin-purple-sidebar: #24193E;
+    --admin-purple-active: #4E3182;
+    --admin-purple-hover: rgba(255, 255, 255, 0.08);
+    --admin-purple-brand: #372859;
+    --admin-purple-accent: #7C3AED;
+
+    /* Neutrals & Surfaces */
+    --admin-bg-page: #EEF0F8;
+    --admin-surface: #FFFFFF;
+    --admin-text-main: #1E293B;
+    --admin-text-dark: #1E1533;
+    --admin-text-muted: #64748B;
+    --admin-text-subtle: #94A3B8;
+    --admin-border: rgba(85, 45, 120, 0.10);
+    --admin-border-light: #E2E8F0;
+
+    /* Badges & Status (NO GREEN on status badge per specification) */
+    --status-ongoing-bg: #EDE9FE;
+    --status-ongoing-text: #5B21B6;
+    --status-ongoing-border: #DDD6FE;
+    --status-ongoing-dot: #7C3AED;
+
+    --status-upcoming-bg: #FEF3C7;
+    --status-upcoming-text: #92400E;
+    --status-upcoming-border: #FDE68A;
+    --status-upcoming-dot: #D97706;
+
+    --status-ended-bg: #F1F5F9;
+    --status-ended-text: #475569;
+    --status-ended-border: #CBD5E1;
+    --status-ended-dot: #64748B;
+
+    --status-notscheduled-text: #64748B;
+    --status-notscheduled-border: #94A3B8;
+
+    /* Layout Metrics */
+    --sidebar-width: 250px;
+    --header-height: 70px;
+}
+
+/* -------------------------------------------------------------
+   Base Layout
+   ------------------------------------------------------------- */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--admin-text-main);
+    background-color: var(--admin-bg-page);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* -------------------------------------------------------------
+   Admin Header
+   ------------------------------------------------------------- */
+.admin-header {
+    background-color: var(--admin-purple-header);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    background-image: 
+        linear-gradient(rgba(45, 31, 71, 0.94), rgba(45, 31, 71, 0.94)),
+        url('../images/udus-campus-bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.admin-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.admin-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    text-decoration: none;
+}
+
+.admin-logo {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+}
+
+.admin-brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-brand-title {
+    color: #FFFFFF;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+}
+
+.admin-brand-sub {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.82rem;
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+/* Header User Profile & Logout */
+.admin-user-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-user-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    background-color: rgba(255, 255, 255, 0.10);
+    padding: 0.4rem 0.85rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+.admin-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--admin-purple-accent);
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.admin-user-avatar svg {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-header-logout {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.4rem 0.85rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-header-logout:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #FFFFFF;
+}
+
+/* -------------------------------------------------------------
+   Admin Layout Wrapper (Sidebar + Main Content)
+   ------------------------------------------------------------- */
+.admin-shell-body {
+    display: flex;
+    flex: 1;
+    min-height: calc(100vh - var(--header-height));
+    position: relative;
+}
+
+/* -------------------------------------------------------------
+   Admin Left Sidebar
+   ------------------------------------------------------------- */
+.admin-sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--admin-purple-sidebar);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem 1rem;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Faint Official UDUS Crest Watermark at bottom of sidebar */
+.admin-sidebar::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: -40px;
+    width: 300px;
+    height: 300px;
+    background-image: url('../images/udus-logo.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.admin-nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.admin-nav-item svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    stroke: currentColor;
+    opacity: 0.85;
+}
+
+.admin-nav-item:hover {
+    background-color: var(--admin-purple-hover);
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.admin-nav-item:hover svg {
+    opacity: 1;
+}
+
+.admin-nav-item.active {
+    background-color: var(--admin-purple-active);
+    color: #FFFFFF;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.admin-nav-item.active svg {
+    opacity: 1;
+}
+
+.admin-nav-footer {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* -------------------------------------------------------------
+   Admin Main Content Area
+   ------------------------------------------------------------- */
+.admin-main-content {
+    flex: 1;
+    padding: 2.25rem 2.5rem;
+    max-width: 1350px;
+    overflow-x: hidden;
+}
+
+/* Page Header Row */
+.admin-page-header {
+    margin-bottom: 1.75rem;
+}
+
+.admin-page-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.admin-page-title {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.session-badge {
+    background-color: rgba(74, 21, 75, 0.08);
+    color: var(--admin-purple-brand);
+    border: 1px solid rgba(74, 21, 75, 0.18);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+}
+
+.admin-page-subtitle {
+    font-size: 0.92rem;
+    color: var(--admin-text-muted);
+    margin: 0.35rem 0 0 0;
+}
+
+/* -------------------------------------------------------------
+   Inline Error Banner & Retry Button
+   ------------------------------------------------------------- */
+.admin-error-banner {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    border-radius: 12px;
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 1.5rem;
+    color: #991B1B;
+    animation: fadeIn 0.3s ease;
+}
+
+.admin-error-banner.show {
+    display: flex;
+}
+
+.admin-error-content {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.btn-banner-retry {
+    background-color: #DC2626;
+    color: #FFFFFF;
+    border: none;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-banner-retry:hover {
+    background-color: #B91C1C;
+}
+
+/* -------------------------------------------------------------
+   Cards Row (3 Stat Cards Grid)
+   ------------------------------------------------------------- */
+.dashboard-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-stat-card {
+    background-color: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px -2px rgba(45, 31, 71, 0.05);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 180px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-stat-card:hover {
+    box-shadow: 0 8px 24px -4px rgba(45, 31, 71, 0.09);
+}
+
+.card-top-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 0.85rem;
+}
+
+.card-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background-color: #F5EDF6;
+    border: 1.5px solid rgba(74, 21, 75, 0.2);
+    color: var(--admin-purple-brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.card-icon-box svg {
+    width: 22px;
+    height: 22px;
+}
+
+.card-metric-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--admin-text-main);
+    margin: 0;
+}
+
+.card-metric-body {
+    margin-top: 0.25rem;
+}
+
+/* Card 1: Status Badges (Strictly NO GREEN anywhere) */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Ongoing: Purple (not green!) */
+.badge-status.ongoing {
+    background-color: var(--status-ongoing-bg);
+    color: var(--status-ongoing-text);
+    border: 1px solid var(--status-ongoing-border);
+}
+
+.badge-status.ongoing .status-dot {
+    background-color: var(--status-ongoing-dot);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25);
+}
+
+/* Upcoming: Amber */
+.badge-status.upcoming {
+    background-color: var(--status-upcoming-bg);
+    color: var(--status-upcoming-text);
+    border: 1px solid var(--status-upcoming-border);
+}
+
+.badge-status.upcoming .status-dot {
+    background-color: var(--status-upcoming-dot);
+}
+
+/* Ended: Grey */
+.badge-status.ended {
+    background-color: var(--status-ended-bg);
+    color: var(--status-ended-text);
+    border: 1px solid var(--status-ended-border);
+}
+
+.badge-status.ended .status-dot {
+    background-color: var(--status-ended-dot);
+}
+
+/* Not scheduled: Grey outline */
+.badge-status.not-scheduled {
+    background-color: transparent;
+    color: var(--status-notscheduled-text);
+    border: 1.5px dashed var(--status-notscheduled-border);
+}
+
+.badge-status.not-scheduled .status-dot {
+    background-color: var(--status-notscheduled-text);
+}
+
+.card-desc-muted {
+    font-size: 0.82rem;
+    color: var(--admin-text-muted);
+    margin: 0.75rem 0 0 0;
+}
+
+/* Card 2: Countdown */
+.countdown-number {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+/* Card 3: Total Votes Cast */
+.votes-stat-number {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+.votes-stat-subtext {
+    font-size: 0.85rem;
+    color: var(--admin-text-muted);
+    margin: 0.35rem 0 0.5rem 0;
+}
+
+.votes-turnout-pct {
+    font-weight: 600;
+    color: var(--admin-purple-brand);
+}
+
+.progress-track-thin {
+    height: 6px;
+    width: 100%;
+    background-color: #E2E8F0;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #6366F1, #8B5CF6);
+    border-radius: 9999px;
+    transition: width 0.4s ease;
+}
+
+/* -------------------------------------------------------------
+   Quick Action Buttons Row
+   ------------------------------------------------------------- */
+.admin-actions-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1.75rem;
+}
+
+.btn-admin-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.25rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-admin-action.primary {
+    background-color: var(--admin-purple-brand);
+    color: #FFFFFF;
+    border: 1px solid var(--admin-purple-brand);
+    box-shadow: 0 4px 12px rgba(55, 40, 89, 0.18);
+}
+
+.btn-admin-action.primary:hover {
+    background-color: #271A42;
+    border-color: #271A42;
+    color: #FFFFFF;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.btn-admin-action.secondary {
+    background-color: #FFFFFF;
+    color: var(--admin-purple-brand);
+    border: 1px solid #D8D2E2;
+}
+
+.btn-admin-action.secondary:hover {
+    background-color: #F8F6FC;
+    border-color: #C4B5FD;
+    color: #271A42;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.btn-admin-action svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* -------------------------------------------------------------
+   Positions & Candidates Table Card
+   ------------------------------------------------------------- */
+.admin-table-card {
+    background-color: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px -2px rgba(45, 31, 71, 0.05);
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 2rem;
+}
+
+.table-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.table-card-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.table-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--admin-purple-brand);
+}
+
+.table-card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    margin: 0;
+}
+
+.badge-diff-note {
+    background-color: #F1F5F9;
+    color: var(--admin-text-muted);
+    border: 1px solid var(--admin-border-light);
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.admin-data-table th {
+    background-color: #F8FAFC;
+    color: var(--admin-text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--admin-border-light);
+}
+
+.admin-data-table td {
+    padding: 0.95rem 1rem;
+    font-size: 0.92rem;
+    color: var(--admin-text-main);
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle;
+}
+
+.admin-data-table tbody tr {
+    transition: background-color 0.1s ease;
+}
+
+.admin-data-table tbody tr:hover {
+    background-color: #F8F6FD;
+}
+
+.candidate-count-pill {
+    background-color: #EDE9FE;
+    color: #5B21B6;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    display: inline-block;
+}
+
+.empty-state-message {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--admin-text-muted);
+    font-size: 0.95rem;
+}
+
+/* -------------------------------------------------------------
+   Institutional Footer
+   ------------------------------------------------------------- */
+.site-footer {
+    background-color: var(--admin-purple-header);
+    padding: 1rem 2.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 10;
+    margin-top: auto;
+}
+
+.site-footer .container-fluid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0;
+    font-size: 0.82rem;
+}
+
+.footer-copy {
+    color: rgba(255, 255, 255, 0.82);
+    margin: 0;
+}
+
+.footer-pillars {
+    color: rgba(255, 255, 255, 0.72);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
+.pillar-bullet {
+    margin: 0 0.35rem;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+/* -------------------------------------------------------------
+   Responsive Breakpoints
+   ------------------------------------------------------------- */
+@media (max-width: 1024px) {
+    .dashboard-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-sidebar {
+        width: 220px;
+    }
+
+    .admin-main-content {
+        padding: 1.5rem 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-shell-body {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+    }
+
+    .admin-nav-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .admin-nav-item {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .admin-header-inner {
+        padding: 0.75rem 1rem;
+    }
+
+    .site-footer .container-fluid {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   Candidate Management Styles
+   ========================================================================== */
+
+/* Locked Banner */
+.admin-locked-banner {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: #FEF3C7;
+    border: 1px solid #FDE68A;
+    color: #92400E;
+    border-radius: 12px;
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.45;
+    animation: fadeIn 0.3s ease;
+}
+
+.admin-locked-banner.show {
+    display: flex;
+}
+
+.admin-locked-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: #D97706;
+}
+
+/* Header Action (Top Right) */
+.page-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.btn-add-candidate {
+    background-color: var(--admin-purple-brand);
+    color: #FFFFFF;
+    border: 1px solid var(--admin-purple-brand);
+    padding: 0.7rem 1.35rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(55, 40, 89, 0.18);
+    transition: all 0.15s ease-in-out;
+    text-decoration: none;
+}
+
+.btn-add-candidate:hover:not(:disabled) {
+    background-color: #271A42;
+    border-color: #271A42;
+    transform: translateY(-1px);
+    color: #FFFFFF;
+}
+
+.btn-add-candidate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Candidate Table Cells & Avatar */
+.candidate-table-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.candidate-avatar-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background-color: #EDE8F8;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.candidate-avatar-initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.98rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    user-select: none;
+}
+
+.candidate-name-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.candidate-name-text {
+    font-weight: 600;
+    color: var(--admin-text-dark);
+    font-size: 0.95rem;
+    line-height: 1.3;
+}
+
+.candidate-dept-subtext {
+    font-size: 0.82rem;
+    color: var(--admin-text-muted);
+}
+
+/* Action Buttons (Edit & Delete) */
+.candidate-actions-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-action-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease, color 0.15s ease;
+}
+
+.btn-action-icon svg {
+    width: 17px;
+    height: 17px;
+}
+
+.btn-action-edit {
+    background-color: #F3E8FF;
+    color: #7E22CE;
+}
+
+.btn-action-edit:hover:not(:disabled) {
+    background-color: #E9D5FF;
+    color: #6B21A8;
+}
+
+.btn-action-delete {
+    background-color: #FEE2E2;
+    color: #DC2626;
+}
+
+.btn-action-delete:hover:not(:disabled) {
+    background-color: #FECACA;
+    color: #B91C1C;
+}
+
+.btn-action-icon:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Pagination Bar */
+.pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1.25rem;
+    margin-top: 0.75rem;
+    border-top: 1px solid var(--admin-border-light);
+    font-size: 0.85rem;
+    color: var(--admin-text-muted);
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.btn-page {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #E2E8F0;
+    background-color: #FFFFFF;
+    color: var(--admin-text-main);
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-page:hover:not(:disabled):not(.active) {
+    background-color: #F8FAFC;
+    border-color: #CBD5E1;
+}
+
+.btn-page.active {
+    background-color: var(--admin-purple-brand);
+    border-color: var(--admin-purple-brand);
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.btn-page:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Success Toast */
+.admin-toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.admin-toast {
+    background-color: #DCFCE7;
+    border: 1px solid #86EFAC;
+    color: #166534;
+    font-weight: 600;
+    font-size: 0.92rem;
+    border-radius: 10px;
+    padding: 0.85rem 1.25rem;
+    box-shadow: 0 10px 25px -5px rgba(22, 101, 52, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    pointer-events: auto;
+    animation: slideInToast 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-bottom: 0.75rem;
+}
+
+.admin-toast svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: #16A34A;
+}
+
+@keyframes slideInToast {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Modals */
+.modal-content {
+    border-radius: 16px;
+    border: 1px solid rgba(85, 45, 120, 0.15);
+    box-shadow: 0 20px 45px -10px rgba(45, 31, 71, 0.25);
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: #FAF9FC;
+    border-bottom: 1px solid var(--admin-border-light);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    background-color: #FAF9FC;
+    border-top: 1px solid var(--admin-border-light);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.modal-alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+.modal-alert.show {
+    display: block;
+}
+
+.modal-alert-danger {
+    background-color: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+}
+
+.modal-alert-warning {
+    background-color: #FEF3C7;
+    border: 1px solid #FDE68A;
+    color: #92400E;
+}
+
+/* ==========================================================================
+   Election Settings Specific Styles
+   ========================================================================== */
+
+/* Settings Status Banner Card */
+.settings-status-card {
+    background-color: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px -2px rgba(45, 31, 71, 0.05);
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.status-banner-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+    align-items: center;
+}
+
+.status-banner-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.status-banner-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--admin-text-muted);
+}
+
+.status-banner-val {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--admin-text-dark);
+}
+
+.badge-closed-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.badge-closed-flag.closed {
+    background-color: #F1F5F9;
+    color: #475569;
+    border: 1px solid #CBD5E1;
+}
+
+.badge-closed-flag.open {
+    background-color: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FDE68A;
+}
+
+/* Settings Form Cards */
+.settings-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.settings-card {
+    background-color: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px -2px rgba(45, 31, 71, 0.05);
+    padding: 1.75rem;
+}
+
+.settings-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.settings-card-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.settings-card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    margin: 0;
+}
+
+.settings-card-subtitle {
+    font-size: 0.88rem;
+    color: var(--admin-text-muted);
+    margin: 0.35rem 0 1.25rem 0;
+}
+
+.settings-info-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    background-color: #F8F9FA;
+    border: 1px solid #E9ECEF;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--admin-text-muted);
+    margin-top: 1rem;
+}
+
+.settings-info-note svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--admin-purple-brand);
+}
+
+.settings-warning-note {
+    background-color: #FEF3C7;
+    border: 1px solid #FDE68A;
+    color: #92400E;
+    border-radius: 8px;
+    padding: 0.65rem 0.95rem;
+    font-size: 0.85rem;
+    margin-top: 0.65rem;
+    display: none;
+}
+
+.settings-warning-note.show {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Positions Pills Container */
+.positions-roster-box {
+    background-color: #FAF9FC;
+    border: 1px solid var(--admin-border-light);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    min-height: 80px;
+}
+
+.positions-pills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.position-pill-item {
+    background-color: #FFFFFF;
+    border: 1px solid #D8D2E2;
+    border-radius: 8px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--admin-text-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.position-pill-item svg {
+    width: 15px;
+    height: 15px;
+    color: var(--admin-purple-brand);
+}
+
+.positions-empty-hint {
+    color: var(--admin-text-muted);
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem 0;
+}
+
+/* Close Election Button in Header / Card */
+.btn-close-election {
+    border: 1.5px solid #DC2626;
+    color: #DC2626;
+    background-color: transparent;
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.btn-close-election:hover:not(:disabled) {
+    background-color: #FEF2F2;
+    border-color: #B91C1C;
+    color: #B91C1C;
+}
+
+.btn-close-election:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+

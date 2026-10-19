@@ -2,15 +2,17 @@
  * UDUS SUG Blockchain Voting System - Voter OTP Verification (V2)
  *
  * Handles voter identity verification via one-time code:
- * - Guards page: redirects to index.html if sessionStorage.pendingAdmission is missing
- * - Segmented 6-digit numeric input with non-digit stripping
+ * - Guards page: redirects to login.html if sessionStorage.pendingAdmission is missing
+ * - Segmented 6-digit numeric input with non-digit stripping (inline validation)
  * - Submits to POST /api/voter/auth/verify-otp
- * - Stores votingToken on HTTP 200 and redirects to ballot.html
+ * - Stores votingToken in localStorage via voter-session.js upon HTTP 200 and redirects to ballot.html
+ * - Pop-ups for request errors (401, 410, 409 ballot issued / not open, 5xx / Network)
  * - Manages 02:45 countdown and resend OTP action
  */
 
 import { apiRequest } from "./api.js";
 import { showAlert, setButtonLoading } from "./ui.js";
+import { setVotingToken, hasVotingToken, runCheckMyVote } from "./voter-session.js";
 
 // GUARD: Immediate check on script execution
 const pendingAdmission = sessionStorage.getItem("pendingAdmission");
@@ -91,10 +93,10 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        alertContainer.innerHTML = "";
+        alertContainer.replaceChildren();
         const otpCode = otpInput.value.trim();
 
-        // Validate exactly 6 digits
+        // Validate exactly 6 digits - field validation stays inline
         if (!/^\d{6}$/.test(otpCode)) {
             showAlert(alertContainer, "Enter the 6-digit code sent to your email.", "danger");
             otpInput.focus();
@@ -114,11 +116,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (response.ok && response.status === 200) {
+                // Success: Part C item 1 - save token to localStorage under udus_voting_token
                 if (response.data && response.data.votingToken) {
-                    sessionStorage.setItem("votingToken", response.data.votingToken);
-                }
-                if (response.data && response.data.expiresAt) {
-                    sessionStorage.setItem("votingTokenExpiresAt", response.data.expiresAt);
+                    setVotingToken(response.data.votingToken);
                 }
 
                 // Redirect to ballot.html upon successful verification
@@ -126,27 +126,143 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // Error handling matching backend status codes
+            // Error handling matching Part B specification with Pop-ups
             if (response.status === 401) {
-                const message = (response.data && response.data.message) || "Invalid OTP code. Please check and try again.";
-                showAlert(alertContainer, message, "danger");
-            } else if (response.status === 409) {
-                const message = (response.data && response.data.message) || "OTP code has already been used.";
-                showAlert(alertContainer, message, "danger");
+                // 401 -> error, "Invalid code", "The code you entered is not correct. Check it and try again." [Try again: close and focus code input]
+                window.UdusPopup.show({
+                    type: "error",
+                    icon: "error",
+                    title: "Invalid code",
+                    message: "The code you entered is not correct. Check it and try again.",
+                    primary: {
+                        label: "Try again",
+                        onClick: () => {
+                            window.UdusPopup.close();
+                            otpInput.value = "";
+                            updateOtpBoxes();
+                            otpInput.focus();
+                        }
+                    },
+                    dismissible: true
+                });
             } else if (response.status === 410) {
-                const message = (response.data && response.data.message) || "OTP code has expired. Please request a new one.";
-                showAlert(alertContainer, message, "danger");
-            } else {
-                let message = "Unable to verify code. Please try again.";
-                if (response.data && typeof response.data === "object" && response.data.message) {
-                    message = response.data.message;
-                } else if (typeof response.data === "string" && response.data.trim()) {
-                    message = response.data;
+                // 410 -> clock, "Code expired", "Your code has expired. Request a new one." [Request a new code]
+                window.UdusPopup.show({
+                    type: "warning",
+                    icon: "clock",
+                    title: "Code expired",
+                    message: "Your code has expired. Request a new one.",
+                    primary: {
+                        label: "Request a new code",
+                        onClick: () => {
+                            window.UdusPopup.close();
+                            handleResendOtp();
+                        }
+                    },
+                    dismissible: true
+                });
+            } else if (response.status === 409) {
+                const rawMsg = (response.data && response.data.message) || "";
+                const isNotOpen = /not open/i.test(rawMsg);
+
+                if (isNotOpen) {
+                    // 409 "not open" as in login
+                    const safeMsg = window.UdusPopup.safeMessage(response.status, rawMsg, "Voting is not open right now.");
+                    window.UdusPopup.show({
+                        type: "error",
+                        icon: "no-entry",
+                        title: "Voting is not open",
+                        message: safeMsg,
+                        secondary: {
+                            label: "Back to Home",
+                            href: "index.html"
+                        },
+                        primary: {
+                            label: "OK",
+                            onClick: () => window.UdusPopup.close()
+                        },
+                        dismissible: true
+                    });
+                } else {
+                    // 409 "ballot already issued" -> warning, "Ballot already issued", backend message
+                    // Add primary button "Check my vote" only if stored token exists on this device
+                    const safeMsg = window.UdusPopup.safeMessage(response.status, rawMsg, "A ballot has already been issued for this admission number in this session.");
+                    const tokenExists = hasVotingToken();
+
+                    if (tokenExists) {
+                        window.UdusPopup.show({
+                            type: "warning",
+                            icon: "warning",
+                            title: "Ballot already issued",
+                            message: safeMsg,
+                            primary: {
+                                label: "Check my vote",
+                                onClick: () => {
+                                    window.UdusPopup.close();
+                                    runCheckMyVote();
+                                }
+                            },
+                            secondary: {
+                                label: "OK",
+                                onClick: () => window.UdusPopup.close()
+                            },
+                            dismissible: true
+                        });
+                    } else {
+                        const fullMsg = safeMsg + " If you did not finish voting, contact the SUG ICT Team.";
+                        window.UdusPopup.show({
+                            type: "warning",
+                            icon: "warning",
+                            title: "Ballot already issued",
+                            message: fullMsg,
+                            primary: {
+                                label: "OK",
+                                onClick: () => window.UdusPopup.close()
+                            },
+                            dismissible: true
+                        });
+                    }
                 }
-                showAlert(alertContainer, message, "danger");
+            } else if (response.status === 0 || response.status >= 500) {
+                // Network or 5xx -> offline, "Connection problem", "We could not reach the server. Check your internet connection and try again." [Try again]
+                window.UdusPopup.show({
+                    type: "error",
+                    icon: "offline",
+                    title: "Connection problem",
+                    message: "We could not reach the server. Check your internet connection and try again.",
+                    primary: {
+                        label: "Try again",
+                        onClick: () => window.UdusPopup.close()
+                    },
+                    dismissible: true
+                });
+            } else {
+                const rawMsg = (response.data && response.data.message) || "";
+                const safeMsg = window.UdusPopup.safeMessage(response.status, rawMsg, "Unable to verify code. Please try again.");
+                window.UdusPopup.show({
+                    type: "error",
+                    icon: "error",
+                    title: "Unable to verify code",
+                    message: safeMsg,
+                    primary: {
+                        label: "OK",
+                        onClick: () => window.UdusPopup.close()
+                    },
+                    dismissible: true
+                });
             }
         } catch {
-            showAlert(alertContainer, "Unable to verify code. Please try again.", "danger");
+            window.UdusPopup.show({
+                type: "error",
+                icon: "offline",
+                title: "Connection problem",
+                message: "We could not reach the server. Check your internet connection and try again.",
+                primary: {
+                    label: "Try again",
+                    onClick: () => window.UdusPopup.close()
+                },
+                dismissible: true
+            });
         } finally {
             isSubmitting = false;
             setButtonLoading(submitBtn, false);
@@ -156,7 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // -------------------------------------------------------------
     // Countdown Timer & Resend Code
     // -------------------------------------------------------------
-    const INITIAL_COUNTDOWN_SECONDS = 165; // 02:45 as shown in screenshot
+    const INITIAL_COUNTDOWN_SECONDS = 165; // 02:45
     let secondsLeft = INITIAL_COUNTDOWN_SECONDS;
     let timerInterval = null;
 
@@ -168,24 +284,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderTimerState() {
         if (!resendWrapper) return;
+        resendWrapper.replaceChildren();
 
         if (secondsLeft > 0) {
-            resendWrapper.innerHTML = `
-                <svg class="resend-clock-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <span>Resend code in <strong class="resend-timer-bold">${formatTime(secondsLeft)}</strong></span>
-            `;
-        } else {
-            resendWrapper.innerHTML = `
-                <button type="button" class="btn-resend-link" id="resendCodeBtn">Resend code</button>
-            `;
+            const clockSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            clockSvg.setAttribute("class", "resend-clock-icon");
+            clockSvg.setAttribute("viewBox", "0 0 24 24");
+            clockSvg.setAttribute("width", "18");
+            clockSvg.setAttribute("height", "18");
+            clockSvg.setAttribute("fill", "none");
+            clockSvg.setAttribute("stroke", "currentColor");
+            clockSvg.setAttribute("stroke-width", "2.2");
+            clockSvg.setAttribute("stroke-linecap", "round");
+            clockSvg.setAttribute("stroke-linejoin", "round");
+            clockSvg.setAttribute("aria-hidden", "true");
 
-            const resendBtn = document.getElementById("resendCodeBtn");
-            if (resendBtn) {
-                resendBtn.addEventListener("click", handleResendOtp);
-            }
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", "12");
+            circle.setAttribute("cy", "12");
+            circle.setAttribute("r", "10");
+
+            const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+            polyline.setAttribute("points", "12 6 12 12 16 14");
+
+            clockSvg.appendChild(circle);
+            clockSvg.appendChild(polyline);
+
+            const span = document.createElement("span");
+            span.appendChild(document.createTextNode("Resend code in "));
+            const strong = document.createElement("strong");
+            strong.id = "countdownTimer";
+            strong.className = "resend-timer-bold";
+            strong.textContent = formatTime(secondsLeft);
+            span.appendChild(strong);
+
+            resendWrapper.appendChild(clockSvg);
+            resendWrapper.appendChild(span);
+        } else {
+            const resendBtn = document.createElement("button");
+            resendBtn.type = "button";
+            resendBtn.className = "btn-resend-link";
+            resendBtn.id = "resendCodeBtn";
+            resendBtn.textContent = "Resend code";
+            resendBtn.addEventListener("click", handleResendOtp);
+            resendWrapper.appendChild(resendBtn);
         }
     }
 
@@ -226,19 +368,49 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateOtpBoxes();
                 secondsLeft = INITIAL_COUNTDOWN_SECONDS;
                 startCountdown();
-            } else {
-                let message = "Unable to resend code. Please try again.";
-                if (response.data && typeof response.data === "object" && response.data.message) {
-                    message = response.data.message;
+            } else if (response.status === 409) {
+                const rawMsg = (response.data && response.data.message) || "";
+                const safeMsg = window.UdusPopup.safeMessage(response.status, rawMsg, "Voting is not open right now.");
+                window.UdusPopup.show({
+                    type: "error",
+                    icon: "no-entry",
+                    title: "Voting is not open",
+                    message: safeMsg,
+                    secondary: { label: "Back to Home", href: "index.html" },
+                    primary: { label: "OK", onClick: () => window.UdusPopup.close() },
+                    dismissible: true
+                });
+            } else if (response.status === 0 || response.status >= 500) {
+                window.UdusPopup.show({
+                    type: "error",
+                    icon: "offline",
+                    title: "Connection problem",
+                    message: "We could not reach the server. Check your internet connection and try again.",
+                    primary: { label: "Try again", onClick: () => window.UdusPopup.close() },
+                    dismissible: true
+                });
+                if (resendBtn) {
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = "Resend code";
                 }
-                showAlert(alertContainer, message, "danger");
+            } else {
+                const rawMsg = (response.data && response.data.message) || "";
+                const safeMsg = window.UdusPopup.safeMessage(response.status, rawMsg, "Unable to resend code. Please try again.");
+                showAlert(alertContainer, safeMsg, "danger");
                 if (resendBtn) {
                     resendBtn.disabled = false;
                     resendBtn.textContent = "Resend code";
                 }
             }
         } catch {
-            showAlert(alertContainer, "Unable to resend code. Please try again.", "danger");
+            window.UdusPopup.show({
+                type: "error",
+                icon: "offline",
+                title: "Connection problem",
+                message: "We could not reach the server. Check your internet connection and try again.",
+                primary: { label: "Try again", onClick: () => window.UdusPopup.close() },
+                dismissible: true
+            });
             if (resendBtn) {
                 resendBtn.disabled = false;
                 resendBtn.textContent = "Resend code";

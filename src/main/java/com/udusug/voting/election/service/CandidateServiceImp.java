@@ -70,9 +70,12 @@ public class CandidateServiceImp implements CandidateService {
     }
 
     @Override
-    public List<AdminCandidateResponse> getAllCandidatesForAdmin() {
-        log.info("Admin request: fetching candidate list");
-        return candidateRepository.findAllWithPosition().stream()
+    public List<AdminCandidateResponse> getAllCandidatesForAdmin(String sessionLabel) {
+        String selectedLabel = sessionLabel != null ? sessionLabel : positionRepository.findAllByOrderByIdAsc().stream()
+                .map(Position::getSessionLabel).filter(java.util.Objects::nonNull).max(String::compareTo)
+                .orElseGet(() -> electionRepository.findFirstByOrderByIdDesc().map(Election::getSessionLabel).orElse(null));
+        log.info("Admin request: fetching active candidates for session {}", selectedLabel);
+        return selectedLabel == null ? List.of() : candidateRepository.findActiveForSession(selectedLabel).stream()
                 .map(this::mapToAdminResponse)
                 .toList();
     }
@@ -183,8 +186,7 @@ public class CandidateServiceImp implements CandidateService {
                 .positionId(candidate.getPosition().getId())
                 .positionName(candidate.getPosition().getName())
                 .department(candidate.getDepartment())
-                .photoUrl(candidate.getPhotoUrl())
-                .active(candidate.isActive())
+                .sessionLabel(candidate.getPosition().getSessionLabel())
                 .build();
     }
 

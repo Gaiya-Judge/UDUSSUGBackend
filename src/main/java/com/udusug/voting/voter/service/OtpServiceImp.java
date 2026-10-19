@@ -65,43 +65,41 @@ public class OtpServiceImp implements OtpService {
     public OtpVerifyResponse verifyOtp(String admissionNumber, String otpCode) {
 
         String trimmedAdmission = admissionNumber.trim().toUpperCase();
-        log.info("Processing OTP verification request for admission number: {}", trimmedAdmission);
+        log.info("Processing OTP verification request");
 
         VoterRoll voter = voterRollRepository.findByAdmissionNumber(trimmedAdmission)
                 .orElseThrow(() -> {
-                    log.warn("OTP verification failed: Admission number [{}] not found", trimmedAdmission);
+                    log.warn("OTP verification failed: voter record not found");
                     return new ApiException(HttpStatus.UNAUTHORIZED, GENERIC_REJECTION);
                 });
 
         OtpVerification otpRecord = otpVerificationRepository
                 .findTopByVoterRollAndVerifiedFalseOrderByExpiresAtDesc(voter)
                 .orElseThrow(() -> {
-                    log.warn("OTP verification failed: No active/unverified OTP record found for admission number [{}]", trimmedAdmission);
+                    log.warn("OTP verification failed: no active OTP record found");
                     return new ApiException(HttpStatus.UNAUTHORIZED, GENERIC_REJECTION);
                 });
 
         if (otpRecord.isVerified()) {
-            log.warn("OTP verification failed: OTP code already used/verified for admission number [{}]", trimmedAdmission);
+            log.warn("OTP verification failed: OTP code already used");
             throw new ApiException(HttpStatus.CONFLICT, "OTP code has already been used");
         }
 
         if (LocalDateTime.now().isAfter(otpRecord.getExpiresAt())) {
-            log.warn("OTP verification failed: OTP expired for admission number [{}] at {}", trimmedAdmission, otpRecord.getExpiresAt());
+            log.warn("OTP verification failed: OTP expired at {}", otpRecord.getExpiresAt());
             throw new ApiException(HttpStatus.GONE, "OTP code has expired. Please request a new one");
         }
 
         String inputHash = HashUtils.sha256(otpCode.trim());
         if (!otpRecord.getOtpCodeHash().equals(inputHash)) {
-            log.warn("OTP verification failed: Invalid OTP code provided for admission number [{}]", trimmedAdmission);
+            log.warn("OTP verification failed: invalid OTP code");
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid OTP code");
         }
 
         // Mark single-use OTP as verified so it cannot be reused
-        otpRecord.setVerified(true);
-        otpVerificationRepository.save(otpRecord);
-        log.info("OTP successfully verified for admission number [{}]", trimmedAdmission);
+        otpVerificationRepository.delete(otpRecord);
 
-        // Hand off directly to token issuance & lock initialization
+        // Hand off directly to token issuance
         return votingTokenService.issueToken(voter);
     }
 }

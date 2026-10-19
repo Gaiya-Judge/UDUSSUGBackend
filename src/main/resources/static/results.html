@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official Results - UDUS SUG Student Union Elections</title>
+    <meta name="description"
+        content="Official election results for Usmanu Danfodiyo University Students Union Government Elections. Verified directly on the Ethereum blockchain.">
+
+    <!-- Typography: Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Institutional Shared Foundation CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Admin Shell & Dashboard CSS (Source of Truth) -->
+    <link rel="stylesheet" href="css/admin.css">
+
+    <!-- Results Specific Styles -->
+    <link rel="stylesheet" href="css/results.css">
+</head>
+
+<body>
+
+    <!-- Institutional Header (matching admin-dashboard.html) -->
+    <header class="admin-header">
+        <div class="admin-header-inner">
+            <a href="index.html" class="admin-brand" aria-label="Go to Home">
+                <img src="images/udus-logo.png" alt="UDUS University Crest" class="admin-logo" width="44" height="44">
+                <div class="admin-brand-text">
+                    <span class="admin-brand-title">Usmanu Danfodiyo University</span>
+                    <span class="admin-brand-sub">SUG Student Union Elections</span>
+                </div>
+            </a>
+
+            <!-- Public Header Links -->
+            <nav class="header-nav" aria-label="Main Navigation">
+                <a href="index.html" class="header-nav-link" id="navHome">Home</a>
+                <a href="about.html" class="header-nav-link" id="navAbout">About</a>
+                <a href="faq.html" class="header-nav-link" id="navFaq">FAQ</a>
+                <a href="admin-dashboard.html" class="header-nav-admin" id="backToAdminLink" style="display: none;"
+                    title="Return to Admin Dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>Back to Dashboard</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Shell Body: Left Sidebar + Main Content -->
+    <div class="admin-shell-body" id="shellBody">
+
+        <!-- Left Positions Sidebar Navigation -->
+        <aside class="admin-sidebar" id="positionsSidebar" aria-label="Election Positions" style="display: none;">
+            <nav>
+                <ul class="admin-nav-list" id="positionsNavList" role="tablist">
+                    <!-- Populated dynamically via JS -->
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-main-content" id="mainContent">
+            <!-- Dynamic Initial Loading State -->
+            <div class="results-center-wrapper" id="initialLoadingState">
+                <div class="finalizing-card">
+                    <div class="finalizing-spinner" aria-hidden="true"></div>
+                    <h2 class="finalizing-title">Connecting to Election Network</h2>
+                    <p class="finalizing-desc">Retrieving election status and verified smart contract parameters...</p>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Institutional Footer (identical to admin-dashboard.html) -->
+    <footer class="site-footer">
+        <div class="container-fluid">
+            <p class="footer-copy">&copy; 2025 Usmanu Danfodiyo University. All rights reserved.</p>
+            <p class="footer-pillars">
+                <span>Transparent</span>
+                <span class="pillar-bullet">&bull;</span>
+                <span>Fair</span>
+                <span class="pillar-bullet">&bull;</span>
+                <span>Credible</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Results Page Controller Logic (No admin guard, purely public) -->
+    <script type="module" src="js/results.js"></script>
+</body>
+
+</html>

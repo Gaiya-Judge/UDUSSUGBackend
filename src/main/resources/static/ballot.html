@@ -20,26 +20,27 @@
     <!-- Shared Login/Institutional Shell CSS -->
     <link rel="stylesheet" href="css/login.css">
 
+    <!-- Reusable Pop-up CSS -->
+    <link rel="stylesheet" href="css/popup.css">
+
     <!-- Immediate Guard on page load (prevents unauthenticated rendering) -->
     <script>
         (function() {
-            var token = sessionStorage.getItem("votingToken");
-            if (!token || !token.trim()) {
-                window.location.replace("login.html");
-                return;
-            }
-            var expiresAt = sessionStorage.getItem("votingTokenExpiresAt");
-            if (expiresAt) {
-                var str = expiresAt.trim();
-                if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(str)) {
-                    str = str.replace(" ", "T") + "+01:00";
-                }
-                var expDate = new Date(str);
-                if (!isNaN(expDate.getTime()) && expDate.getTime() <= Date.now()) {
-                    sessionStorage.removeItem("votingToken");
-                    sessionStorage.removeItem("votingTokenExpiresAt");
+            try {
+                var raw = localStorage.getItem("udus_voting_token");
+                if (!raw) {
                     window.location.replace("login.html");
+                    return;
                 }
+                var data = JSON.parse(raw);
+                if (!data || !data.token || typeof data.savedAt !== "number" || (Date.now() - data.savedAt > 30 * 60 * 1000)) {
+                    localStorage.removeItem("udus_voting_token");
+                    window.location.replace("login.html");
+                    return;
+                }
+            } catch (e) {
+                localStorage.removeItem("udus_voting_token");
+                window.location.replace("login.html");
             }
         })();
     </script>
@@ -791,6 +792,7 @@
                 </div>
             </div>
             <div class="header-right-actions">
+                <button type="button" class="header-clear-session-link" id="headerClearSessionBtn" aria-label="Clear session and return to login">Not you? Clear this session</button>
                 <div class="header-timer-pill" id="headerTimerPill" style="display: none;" title="Voting session countdown">
                     <svg class="header-timer-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -961,6 +963,9 @@
 
     <!-- Bootstrap 5 Bundle JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Reusable Pop-up Component -->
+    <script src="js/popup.js"></script>
 
     <!-- Page Logic -->
     <script type="module" src="js/ballot.js"></script>

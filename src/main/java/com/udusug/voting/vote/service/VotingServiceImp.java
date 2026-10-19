@@ -67,7 +67,7 @@ public class VotingServiceImp implements VotingService{
         }
 
         // 3. Mark local VotingToken as used upon successful transaction mining
-        votingTokenService.markUsed(token);
+        votingTokenService.markUsed(token, transactionHash);
 
         log.info("Vote cast successfully for token (Hash prefix: {}). Transaction Hash: {}",
                 token.getTokenHash().substring(0, 10), transactionHash);

@@ -14,6 +14,9 @@ public interface CandidateRepository extends JpaRepository<Candidate, Long> {
     List<Candidate> findAllWithPosition();
 
     @Query("select c from Candidate c join fetch c.position where c.position.sessionLabel = :sessionLabel and c.active = true")
+    List<Candidate> findActiveForSession(@Param("sessionLabel") String sessionLabel);
+
+    @Query("select c from Candidate c join fetch c.position where c.position.sessionLabel = :sessionLabel and c.active = true")
     List<Candidate> findActiveBySessionLabelWithPosition(@Param("sessionLabel") String sessionLabel);
 
     @Query("select c from Candidate c join fetch c.position where c.position.id = :positionId and c.position.sessionLabel = :sessionLabel and c.active = true")

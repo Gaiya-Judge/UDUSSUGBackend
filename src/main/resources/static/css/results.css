@@ -1,0 +1,565 @@
+/* ==========================================================================
+   UDUS SUG Blockchain Voting System - Public Results Page CSS
+   Loaded after admin.css to extend and refine public results presentation.
+   Strict institutional compliance: Purple #2D1F47 foundation, NO GREEN anywhere.
+   ========================================================================== */
+
+/* -------------------------------------------------------------
+   Header Navigation for Public Results Page
+   ------------------------------------------------------------- */
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.header-nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-decoration: none;
+    position: relative;
+    padding: 0.4rem 0.2rem;
+    transition: color 0.15s ease-in-out;
+}
+
+.header-nav-link:hover {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.header-nav-admin {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 0.38rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #FFFFFF;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.header-nav-admin:hover {
+    background-color: rgba(255, 255, 255, 0.20);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+/* -------------------------------------------------------------
+   Layout Structure & Centered Container Modifiers
+   ------------------------------------------------------------- */
+.admin-shell-body.centered-layout {
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.results-center-wrapper {
+    width: 100%;
+    max-width: 720px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+}
+
+/* -------------------------------------------------------------
+   Results Header Section
+   ------------------------------------------------------------- */
+.results-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.results-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.results-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+}
+
+.results-main-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    margin: 0;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+}
+
+.results-subtext {
+    font-size: 0.92rem;
+    color: var(--admin-text-muted);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.results-header-right {
+    display: flex;
+    align-items: center;
+}
+
+/* Winner Pill (light purple pill matching dashboard) */
+.badge-winner {
+    background-color: #EDE9FE;
+    color: #5B21B6;
+    border: 1px solid #DDD6FE;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 0.2rem 0.65rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+}
+
+/* -------------------------------------------------------------
+   Results Card & Rows
+   ------------------------------------------------------------- */
+.results-card {
+    background-color: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -2px rgba(45, 31, 71, 0.06);
+    padding: 2rem 2.25rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+}
+
+.results-candidates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.results-candidate-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--admin-border-light);
+}
+
+.results-candidate-row:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* Candidate Avatar */
+.results-avatar-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    font-size: 1rem;
+    font-weight: 700;
+    user-select: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.results-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Abstain Avatar (Neutral Grey with No-entry SVG) */
+.results-avatar-abstain {
+    background-color: #F1F5F9;
+    color: #64748B;
+    border: 1px solid #E2E8F0;
+}
+
+.results-avatar-abstain svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* Row Content Layout: Candidate info on left, votes and progress on right */
+.results-candidate-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+.results-candidate-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.results-candidate-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.results-name-line {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.results-candidate-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    margin: 0;
+    line-height: 1.25;
+}
+
+.results-candidate-dept {
+    font-size: 0.84rem;
+    color: var(--admin-text-muted);
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Right-aligned Stats (Count & Percentage) */
+.results-metrics-group {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    flex-shrink: 0;
+}
+
+.results-vote-count {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--admin-text-dark);
+    white-space: nowrap;
+}
+
+.results-percentage {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    min-width: 58px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Progress Bar */
+.results-progress-track {
+    height: 9px;
+    width: 100%;
+    background-color: #EAE6F2;
+    border-radius: 9999px;
+    overflow: hidden;
+    position: relative;
+}
+
+.results-progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: var(--admin-purple-sidebar);
+    border-radius: 9999px;
+    transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.results-progress-fill.abstained {
+    background-color: #64748B;
+}
+
+/* Abstained text styling */
+.results-candidate-row.abstained-row .results-candidate-name {
+    color: #475569;
+    font-weight: 600;
+}
+
+/* -------------------------------------------------------------
+   Summary Footer Line
+   ------------------------------------------------------------- */
+.results-summary-line {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--admin-border-light);
+    font-size: 0.88rem;
+    color: var(--admin-text-muted);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.results-summary-divider {
+    color: #CBD5E1;
+    margin: 0 0.25rem;
+}
+
+.results-summary-value {
+    color: var(--admin-text-dark);
+    font-weight: 600;
+}
+
+/* -------------------------------------------------------------
+   Waiting & Centered Card Styles (UPCOMING / ONGOING / NOT_SCHEDULED)
+   ------------------------------------------------------------- */
+.waiting-card {
+    background-color: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -2px rgba(45, 31, 71, 0.06);
+    padding: 3rem 2.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.waiting-icon-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background-color: #F5EDF6;
+    border: 1.5px solid rgba(74, 21, 75, 0.2);
+    color: var(--admin-purple-brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.waiting-icon-box svg {
+    width: 32px;
+    height: 32px;
+}
+
+.waiting-title {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    margin: 0;
+    line-height: 1.3;
+    max-width: 520px;
+}
+
+.waiting-subtitle {
+    font-size: 0.95rem;
+    color: var(--admin-text-muted);
+    margin: 0;
+    max-width: 480px;
+    line-height: 1.5;
+}
+
+.waiting-countdown-wrapper {
+    background-color: #FAF9FC;
+    border: 1px solid var(--admin-border-light);
+    border-radius: 12px;
+    padding: 1.25rem 2rem;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 280px;
+}
+
+.waiting-countdown-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--admin-text-muted);
+}
+
+.waiting-countdown-time {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.waiting-notice-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background-color: #EDE9FE;
+    color: #5B21B6;
+    border: 1px solid #DDD6FE;
+    font-size: 0.84rem;
+    font-weight: 500;
+    padding: 0.45rem 1rem;
+    border-radius: 9999px;
+    margin-top: 0.5rem;
+}
+
+/* -------------------------------------------------------------
+   Finalizing Results State Card (Blockchain Syncing)
+   ------------------------------------------------------------- */
+.finalizing-card {
+    background-color: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -2px rgba(45, 31, 71, 0.06);
+    padding: 3.5rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.finalizing-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3.5px solid rgba(74, 21, 75, 0.15);
+    border-top-color: var(--admin-purple-brand);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.finalizing-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--admin-text-dark);
+    margin: 0;
+}
+
+.finalizing-desc {
+    font-size: 0.92rem;
+    color: var(--admin-text-muted);
+    margin: 0;
+    max-width: 460px;
+    line-height: 1.5;
+}
+
+.btn-results-retry {
+    background-color: var(--admin-purple-brand);
+    color: #FFFFFF;
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.btn-results-retry:hover {
+    background-color: var(--admin-purple-dark);
+    transform: translateY(-1px);
+}
+
+.btn-results-retry:active {
+    transform: translateY(0);
+}
+
+/* -------------------------------------------------------------
+   Empty & Error State Overlays
+   ------------------------------------------------------------- */
+.results-empty-card {
+    background-color: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--admin-text-muted);
+    font-size: 0.95rem;
+}
+
+/* -------------------------------------------------------------
+   Responsive Breakpoints
+   ------------------------------------------------------------- */
+@media (max-width: 992px) {
+    .admin-shell-body {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+    }
+
+    .admin-sidebar::after {
+        display: none;
+    }
+
+    .admin-nav-list {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+    }
+
+    .admin-nav-item {
+        white-space: nowrap;
+        width: auto;
+    }
+
+    .admin-main-content {
+        padding: 1.5rem 1rem;
+    }
+
+    .results-card {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .results-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .results-candidate-row {
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .results-candidate-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .results-metrics-group {
+        align-self: flex-start;
+        gap: 1rem;
+    }
+
+    .results-percentage {
+        text-align: left;
+    }
+
+    .header-nav {
+        gap: 1rem;
+    }
+}

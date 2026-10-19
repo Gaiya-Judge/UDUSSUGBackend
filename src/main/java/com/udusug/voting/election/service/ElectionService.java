@@ -10,7 +10,8 @@ import java.util.List;
 
 public interface ElectionService {
 
-    List<PositionResponse> getPositions(String sessionLabel);
+    List<PositionResponse> getPositions();
+    List<PositionResponse> getAdminPositions(String sessionLabel);
 
     ElectionResponse getLatestElection();
 

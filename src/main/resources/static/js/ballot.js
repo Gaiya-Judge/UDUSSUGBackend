@@ -4,15 +4,22 @@
  * Handles voter ballot rendering, candidate selection, review modal,
  * and irreversible blockchain vote submission.
  *
- * Strict Anonymity:
- * - Voting token stored only in sessionStorage, never displayed or logged
- * - Zero voter identifiers sent, stored, or displayed
- * - Zero storage of ballot selections
- * - Parallel arrays in POST /api/vote with abstained positions omitted
+ * Strict Anonymity & Self-Recovery (Part B & Part C):
+ * - Voting token stored in localStorage via voter-session.js, purged after 30 mins
+ * - Verified against POST /api/vote/token-status before rendering
+ * - Header session recovery and clear session controls
+ * - Request errors handled with UdusPopup; empty selection handled inline
  */
 
 import { apiRequest } from "./api.js";
 import { showAlert, setButtonLoading } from "./ui.js";
+import {
+    getVotingToken,
+    clearVotingToken,
+    saveReceipt,
+    checkTokenStatus,
+    runCheckMyVote
+} from "./voter-session.js";
 
 // Helper: Parse date strings treating un-offset timestamps as WAT (+01:00)
 function parseWatDate(dateStr) {
@@ -25,29 +32,17 @@ function parseWatDate(dateStr) {
     return isNaN(d.getTime()) ? null : d;
 }
 
-// GUARD: Immediate check on script execution
+// GUARD: Immediate check on script execution (Part C Item 1 & 2)
 function checkAuthGuard() {
-    const token = sessionStorage.getItem("votingToken");
-    if (!token || !token.trim()) {
+    const token = getVotingToken();
+    if (!token) {
         window.location.replace("login.html");
         return false;
-    }
-
-    const expiresAt = sessionStorage.getItem("votingTokenExpiresAt");
-    if (expiresAt) {
-        const expDate = parseWatDate(expiresAt);
-        if (expDate && expDate.getTime() <= Date.now()) {
-            sessionStorage.removeItem("votingToken");
-            sessionStorage.removeItem("votingTokenExpiresAt");
-            window.location.replace("login.html");
-            return false;
-        }
     }
     return true;
 }
 
 if (!checkAuthGuard()) {
-    // Redirecting, halt further script execution
     throw new Error("Voting session missing or expired.");
 }
 
@@ -102,7 +97,6 @@ function renderCandidateAvatar(cand) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Secondary guard verification inside DOMContentLoaded
     if (!checkAuthGuard()) return;
 
     // DOM Elements
@@ -111,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const reviewSubmitBtn = document.getElementById("reviewSubmitBtn");
     const actionsNote = document.getElementById("actionsNote");
     const logoutBtn = document.getElementById("logoutBtn");
+    const headerClearSessionBtn = document.getElementById("headerClearSessionBtn");
     const headerTimerPill = document.getElementById("headerTimerPill");
     const headerCountdownDisplay = document.getElementById("headerCountdownDisplay");
 
@@ -135,12 +130,22 @@ document.addEventListener("DOMContentLoaded", () => {
     let timerInterval = null;
 
     // -------------------------------------------------------------
-    // Header & Logout Management
+    // Header & Session Management (Part C Item 6)
     // -------------------------------------------------------------
+    if (headerClearSessionBtn) {
+        headerClearSessionBtn.addEventListener("click", () => {
+            clearVotingToken();
+            sessionStorage.removeItem("pendingAdmission");
+            sessionStorage.removeItem("lastTxHash");
+            window.location.replace("login.html");
+        });
+    }
+
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
-            sessionStorage.removeItem("votingToken");
-            sessionStorage.removeItem("votingTokenExpiresAt");
+            clearVotingToken();
+            sessionStorage.removeItem("pendingAdmission");
+            sessionStorage.removeItem("lastTxHash");
             window.location.replace("index.html");
         });
     }
@@ -148,8 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // -------------------------------------------------------------
     // Countdown Timer Management
     // -------------------------------------------------------------
-    function initCountdown() {
-        const expiresAtStr = sessionStorage.getItem("votingTokenExpiresAt");
+    function initCountdown(expiresAtStr) {
         if (!expiresAtStr) return;
 
         const expiresDate = parseWatDate(expiresAtStr);
@@ -165,14 +169,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (totalSeconds <= 0) {
                 if (timerInterval) clearInterval(timerInterval);
-                sessionStorage.removeItem("votingToken");
-                sessionStorage.removeItem("votingTokenExpiresAt");
+                clearVotingToken();
 
                 if (reviewModalInstance) {
                     reviewModalInstance.hide();
                 }
 
-                showSessionTerminatedAlert("Your session has expired.");
+                showSessionExpiredPopUp();
                 if (headerCountdownDisplay) {
                     headerCountdownDisplay.textContent = "00:00";
                 }
@@ -193,34 +196,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         updateCountdown();
+        if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(updateCountdown, 1000);
     }
 
-    initCountdown();
-
-    // -------------------------------------------------------------
-    // Helper: Termination UI State
-    // -------------------------------------------------------------
-    function showSessionTerminatedAlert(message) {
-        alertContainer.innerHTML = "";
-        const alertBox = document.createElement("div");
-        alertBox.className = "alert alert-danger p-4 text-center shadow-sm";
-        alertBox.setAttribute("role", "alert");
-
-        alertBox.innerHTML = `
-            <div class="mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-            </div>
-            <h4 class="alert-heading fw-bold mb-2">Voting Session Ended</h4>
-            <p class="mb-3 text-secondary">${escapeHtml(message)}</p>
-            <a href="login.html" class="btn btn-udus px-4 py-2">Return to Login</a>
-        `;
-
-        alertContainer.appendChild(alertBox);
+    function showSessionExpiredPopUp() {
+        clearVotingToken();
+        window.UdusPopup.show({
+            type: "warning",
+            icon: "clock",
+            title: "Session expired",
+            message: "Your voting session has expired. Please log in again.",
+            primary: {
+                label: "Log in again",
+                href: "login.html"
+            },
+            dismissible: false
+        });
         permanentlyDisableBallot();
     }
 
@@ -266,7 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Data Loading: /api/positions and /api/candidates
     // -------------------------------------------------------------
     async function loadBallotData() {
-        alertContainer.innerHTML = "";
+        alertContainer.replaceChildren();
         positionsContainer.innerHTML = `
             <div class="ballot-loading-card text-center py-5">
                 <div class="spinner-border text-purple" style="color: #372859; width: 2.75rem; height: 2.75rem;" role="status">
@@ -354,25 +346,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderLoadError(message) {
-        positionsContainer.innerHTML = "";
-        alertContainer.innerHTML = `
-            <div class="alert alert-danger d-flex align-items-center justify-content-between p-3" role="alert">
-                <div class="d-flex align-items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    <span>${escapeHtml(message)}</span>
-                </div>
-                <button type="button" class="btn btn-sm btn-outline-danger" id="retryLoadBtn">Retry</button>
-            </div>
-        `;
+        positionsContainer.replaceChildren();
+        alertContainer.replaceChildren();
 
-        const retryBtn = document.getElementById("retryLoadBtn");
-        if (retryBtn) {
-            retryBtn.addEventListener("click", loadBallotData);
-        }
+        const alertBox = document.createElement("div");
+        alertBox.className = "alert alert-danger d-flex align-items-center justify-content-between p-3";
+        alertBox.setAttribute("role", "alert");
+
+        const leftCol = document.createElement("div");
+        leftCol.className = "d-flex align-items-center gap-2";
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = message;
+        leftCol.appendChild(textSpan);
+
+        const retryBtn = document.createElement("button");
+        retryBtn.type = "button";
+        retryBtn.className = "btn btn-sm btn-outline-danger";
+        retryBtn.textContent = "Retry";
+        retryBtn.addEventListener("click", loadBallotData);
+
+        alertBox.appendChild(leftCol);
+        alertBox.appendChild(retryBtn);
+        alertContainer.appendChild(alertBox);
 
         reviewSubmitBtn.disabled = true;
         reviewSubmitBtn.classList.add("disabled");
@@ -382,7 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Render Ballot DOM
     // -------------------------------------------------------------
     function renderBallot(positions, candidatesByPosition) {
-        positionsContainer.innerHTML = "";
+        positionsContainer.replaceChildren();
         selections.clear();
 
         positions.forEach(pos => {
@@ -397,18 +393,33 @@ document.addEventListener("DOMContentLoaded", () => {
             // Header of position card
             const header = document.createElement("header");
             header.className = "position-header";
-            header.innerHTML = `
-                <div class="position-icon-circle" aria-hidden="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                        <circle cx="12" cy="7" r="4" />
-                    </svg>
-                </div>
-                <div class="position-header-text">
-                    <h2 id="pos-title-${pos.id}" class="position-title">${escapeHtml(pos.title)}</h2>
-                    <p class="position-subtitle">Choose one candidate for the position of ${escapeHtml(pos.title)}.</p>
-                </div>
+
+            const iconCircle = document.createElement("div");
+            iconCircle.className = "position-icon-circle";
+            iconCircle.setAttribute("aria-hidden", "true");
+            iconCircle.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
             `;
+
+            const headerText = document.createElement("div");
+            headerText.className = "position-header-text";
+
+            const titleH2 = document.createElement("h2");
+            titleH2.id = `pos-title-${pos.id}`;
+            titleH2.className = "position-title";
+            titleH2.textContent = pos.title;
+
+            const subtitleP = document.createElement("p");
+            subtitleP.className = "position-subtitle";
+            subtitleP.textContent = `Choose one candidate for the position of ${pos.title}.`;
+
+            headerText.appendChild(titleH2);
+            headerText.appendChild(subtitleP);
+            header.appendChild(iconCircle);
+            header.appendChild(headerText);
             positionCard.appendChild(header);
 
             // Candidates row grid
@@ -450,7 +461,6 @@ document.addEventListener("DOMContentLoaded", () => {
             abstainCard.className = "candidate-option-card abstain-card selected";
             abstainCard.dataset.type = "abstain";
             abstainCard.dataset.positionId = String(pos.id);
-            abstainCard.dataset.candidateId = "abstain";
             abstainCard.tabIndex = 0;
             abstainCard.setAttribute("role", "radio");
             abstainCard.setAttribute("aria-checked", "true");
@@ -460,14 +470,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="card-radio-indicator" aria-hidden="true">
                     <div class="radio-dot"></div>
                 </div>
-                <div class="abstain-icon-wrap" aria-hidden="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-                    </svg>
+                <div class="abstain-avatar-wrap">
+                    <div class="abstain-circle" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                        </svg>
+                    </div>
                 </div>
                 <h3 class="abstain-title">Abstain from this position</h3>
-                <p class="abstain-subtitle">I do not want to choose any candidate.</p>
+                <p class="abstain-desc">Submit no vote for ${escapeHtml(pos.title)}</p>
             `;
 
             grid.appendChild(abstainCard);
@@ -475,27 +487,29 @@ document.addEventListener("DOMContentLoaded", () => {
             positionsContainer.appendChild(positionCard);
         });
 
-        // Setup interaction listeners on cards
-        setupSelectionListeners();
+        setupCardSelectionListeners();
         updateSubmitButtonState();
     }
 
     // -------------------------------------------------------------
-    // Candidate & Abstain Selection Handlers
+    // Candidate Card Selection Listeners
     // -------------------------------------------------------------
-    function setupSelectionListeners() {
-        const cards = document.querySelectorAll(".candidate-option-card");
+    function setupCardSelectionListeners() {
+        const allCards = document.querySelectorAll(".candidate-option-card");
 
-        cards.forEach(card => {
+        allCards.forEach(card => {
             const selectCard = () => {
                 const posId = Number(card.dataset.positionId);
-                const isAbstain = card.dataset.type === "abstain";
-                const candId = isAbstain ? "abstain" : Number(card.dataset.candidateId);
+                const type = card.dataset.type;
 
-                // Update selections map
-                selections.set(posId, candId);
+                if (type === "abstain") {
+                    selections.set(posId, "abstain");
+                } else {
+                    const candId = Number(card.dataset.candidateId);
+                    selections.set(posId, candId);
+                }
 
-                // Find all cards in this position
+                // Reset all cards in this position group
                 const groupCards = document.querySelectorAll(`.candidate-option-card[data-position-id="${posId}"]`);
                 groupCards.forEach(c => {
                     c.classList.remove("selected");
@@ -529,8 +543,8 @@ document.addEventListener("DOMContentLoaded", () => {
     reviewSubmitBtn.addEventListener("click", () => {
         if (reviewSubmitBtn.disabled) return;
 
-        modalAlertContainer.innerHTML = "";
-        reviewSelectionsList.innerHTML = "";
+        modalAlertContainer.replaceChildren();
+        reviewSelectionsList.replaceChildren();
 
         activePositions.forEach(pos => {
             const choice = selections.get(pos.id);
@@ -579,7 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // -------------------------------------------------------------
-    // Vote Casting: POST /api/vote
+    // Vote Casting: POST /api/vote (Part B & Part C)
     // -------------------------------------------------------------
     function beforeUnloadHandler(e) {
         e.preventDefault();
@@ -589,12 +603,12 @@ document.addEventListener("DOMContentLoaded", () => {
     confirmVoteBtn.addEventListener("click", async () => {
         if (isCasting) return;
 
-        modalAlertContainer.innerHTML = "";
-        alertContainer.innerHTML = "";
+        modalAlertContainer.replaceChildren();
+        alertContainer.replaceChildren();
 
-        // Read token from sessionStorage strictly at the moment of sending
-        const token = sessionStorage.getItem("votingToken");
-        if (!token || !token.trim()) {
+        // Read token from localStorage via voter-session
+        const token = getVotingToken();
+        if (!token) {
             reviewModalInstance.hide();
             window.location.replace("login.html");
             return;
@@ -612,6 +626,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        // Field validation: empty selection stays inline in modalAlertContainer
         if (positionIds.length === 0) {
             showAlert(modalAlertContainer, "Please select at least one candidate before submitting.", "danger");
             return;
@@ -634,91 +649,136 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            // Clean up unload listener
             window.removeEventListener("beforeunload", beforeUnloadHandler);
 
             // 1. Success (HTTP 200)
             if (response.ok && response.status === 200) {
                 const txHash = response.data && response.data.transactionHash ? response.data.transactionHash : "";
-                if (txHash) {
-                    sessionStorage.setItem("lastTxHash", txHash);
-                }
+                saveReceipt(txHash);
+                clearVotingToken();
 
-                // Clean up token keys
-                sessionStorage.removeItem("votingToken");
-                sessionStorage.removeItem("votingTokenExpiresAt");
-
-                // Replace location so back button cannot return to ballot
                 const targetUrl = txHash ? `receipt.html?txHash=${encodeURIComponent(txHash)}` : "receipt.html";
                 window.location.replace(targetUrl);
                 return;
             }
 
             // 2. Client / Validation Error (HTTP 400)
-            // Close modal; keep token and selections so voter can retry
+            // Vote 400 -> no-entry, "Vote not accepted", backend message or fixed fallback
             if (response.status === 400) {
                 resetModalCastingState();
                 reviewModalInstance.hide();
-                let message = "Unable to submit vote. Please try again.";
-                if (response.data && typeof response.data === "object" && response.data.message) {
-                    message = response.data.message;
-                } else if (typeof response.data === "string" && response.data.trim()) {
-                    message = response.data;
-                }
-                showAlert(alertContainer, message, "danger");
+                const rawMsg = (response.data && response.data.message) || "";
+                const safeMsg = window.UdusPopup.safeMessage(response.status, rawMsg, "Your vote could not be accepted. Voting may have closed.");
+                window.UdusPopup.show({
+                    type: "error",
+                    icon: "no-entry",
+                    title: "Vote not accepted",
+                    message: safeMsg,
+                    primary: {
+                        label: "OK",
+                        onClick: () => window.UdusPopup.close()
+                    },
+                    dismissible: true
+                });
                 return;
             }
 
-            // 3. Unauthorized / Invalid Session (HTTP 401)
-            if (response.status === 401) {
-                sessionStorage.removeItem("votingToken");
-                sessionStorage.removeItem("votingTokenExpiresAt");
+            // 3. Unauthorized (401) or Expired (410)
+            // Stored token EXPIRED or UNKNOWN, or vote 401/410 -> clock, "Session expired", non-dismissible
+            if (response.status === 401 || response.status === 410) {
+                clearVotingToken();
+                resetModalCastingState();
                 reviewModalInstance.hide();
-                showSessionTerminatedAlert("Your voting session is invalid. Please log in again.");
+                window.UdusPopup.show({
+                    type: "warning",
+                    icon: "clock",
+                    title: "Session expired",
+                    message: "Your voting session has expired. Please log in again.",
+                    primary: {
+                        label: "Log in again",
+                        href: "login.html"
+                    },
+                    dismissible: false
+                });
                 return;
             }
 
             // 4. Conflict / Already Submitted (HTTP 409)
+            // Vote 409 -> call token-status first: USED -> go to receipt; otherwise warning "Vote could not be submitted"
             if (response.status === 409) {
-                sessionStorage.removeItem("votingToken");
-                sessionStorage.removeItem("votingTokenExpiresAt");
+                const statusRes = await checkTokenStatus(token);
+                if (statusRes.status === "USED") {
+                    saveReceipt(statusRes.transactionHash);
+                    clearVotingToken();
+                    const targetUrl = statusRes.transactionHash
+                        ? `receipt.html?txHash=${encodeURIComponent(statusRes.transactionHash)}`
+                        : "receipt.html?unavailable=1";
+                    window.location.replace(targetUrl);
+                    return;
+                }
+
+                resetModalCastingState();
                 reviewModalInstance.hide();
-                showSessionTerminatedAlert("This ballot has already been submitted.");
+                const rawMsg = (response.data && response.data.message) || "";
+                const safeMsg = window.UdusPopup.safeMessage(response.status, rawMsg, "Vote could not be submitted.");
+                window.UdusPopup.show({
+                    type: "warning",
+                    icon: "warning",
+                    title: "Vote could not be submitted",
+                    message: safeMsg,
+                    primary: {
+                        label: "OK",
+                        onClick: () => window.UdusPopup.close()
+                    },
+                    dismissible: true
+                });
                 return;
             }
 
-            // 5. Expired Session (HTTP 410)
-            if (response.status === 410) {
-                sessionStorage.removeItem("votingToken");
-                sessionStorage.removeItem("votingTokenExpiresAt");
-                reviewModalInstance.hide();
-                showSessionTerminatedAlert("Your voting session has expired. Please log in again.");
-                return;
-            }
-
-            // 6. Ambiguous Outcome (HTTP 500, status 0, or network failure)
-            // Do NOT clear token. Do NOT redirect. Do NOT auto-retry. Leave submit disabled.
-            if (response.status === 500 || response.status === 0 || !response.status) {
-                reviewModalInstance.hide();
-                showAlert(alertContainer, "We could not confirm your vote. Do not vote again. Please contact the election committee.", "warning");
-                permanentlyDisableBallot();
-                return;
-            }
-
-            // 7. Anything else
+            // 5. Network error, timeout or 5xx on submit
+            // offline, "We could not confirm your vote", non-dismissible; KEEP the token
             resetModalCastingState();
             reviewModalInstance.hide();
-            let errorMessage = "Unable to continue. Please try again.";
-            if (response.data && typeof response.data === "object" && response.data.message) {
-                errorMessage = response.data.message;
-            }
-            showAlert(alertContainer, errorMessage, "danger");
+            window.UdusPopup.show({
+                type: "error",
+                icon: "offline",
+                title: "We could not confirm your vote",
+                message: "Do not log in again. Press 'Check my vote' to see whether your vote was recorded.",
+                primary: {
+                    label: "Check my vote",
+                    onClick: () => {
+                        window.UdusPopup.close();
+                        runCheckMyVote({
+                            onValidSubmitAgain: () => {
+                                resetModalCastingState();
+                            }
+                        });
+                    }
+                },
+                dismissible: false
+            });
         } catch {
-            // Ambiguous network/runtime failure
             window.removeEventListener("beforeunload", beforeUnloadHandler);
+            resetModalCastingState();
             reviewModalInstance.hide();
-            showAlert(alertContainer, "We could not confirm your vote. Do not vote again. Please contact the election committee.", "warning");
-            permanentlyDisableBallot();
+            window.UdusPopup.show({
+                type: "error",
+                icon: "offline",
+                title: "We could not confirm your vote",
+                message: "Do not log in again. Press 'Check my vote' to see whether your vote was recorded.",
+                primary: {
+                    label: "Check my vote",
+                    onClick: () => {
+                        window.UdusPopup.close();
+                        runCheckMyVote({
+                            onValidSubmitAgain: () => {
+                                resetModalCastingState();
+                            }
+                        });
+                    }
+                },
+                dismissible: false
+            });
         }
     });
 
@@ -729,6 +789,57 @@ document.addEventListener("DOMContentLoaded", () => {
         modalCloseBtn.disabled = false;
     }
 
-    // Initial ballot loading trigger
-    loadBallotData();
+    // -------------------------------------------------------------
+    // Initial Ballot Load: Token verification (Part C Item 2)
+    // -------------------------------------------------------------
+    async function initializeBallotSession() {
+        const token = getVotingToken();
+        if (!token) {
+            window.location.replace("login.html");
+            return;
+        }
+
+        try {
+            const statusRes = await checkTokenStatus(token);
+
+            if (statusRes.status === "VALID") {
+                if (statusRes.expiresAt) {
+                    initCountdown(statusRes.expiresAt);
+                }
+                loadBallotData();
+                return;
+            }
+
+            if (statusRes.status === "USED") {
+                saveReceipt(statusRes.transactionHash);
+                clearVotingToken();
+                const targetUrl = statusRes.transactionHash
+                    ? `receipt.html?txHash=${encodeURIComponent(statusRes.transactionHash)}`
+                    : "receipt.html?unavailable=1";
+                window.location.replace(targetUrl);
+                return;
+            }
+
+            // EXPIRED or UNKNOWN
+            clearVotingToken();
+            positionsContainer.replaceChildren();
+            window.UdusPopup.show({
+                type: "warning",
+                icon: "clock",
+                title: "Session expired",
+                message: "Your voting session has expired. Please log in again.",
+                primary: {
+                    label: "Log in again",
+                    href: "login.html"
+                },
+                dismissible: false
+            });
+            permanentlyDisableBallot();
+        } catch {
+            // In case of transient network glitch on load, load ballot data
+            loadBallotData();
+        }
+    }
+
+    initializeBallotSession();
 });

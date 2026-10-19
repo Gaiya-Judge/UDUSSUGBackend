@@ -44,30 +44,47 @@ public class ElectionServiceImp implements ElectionService{
     private final AuditLogRepository auditLogRepository;
 
     @Override
-    public List<PositionResponse> getPositions(String sessionLabel) {
-        List<Position> positions;
-        if (sessionLabel != null) {
-            positions = positionRepository.findBySessionLabelOrderByIdAsc(sessionLabel);
-        } else {
-            Election latest = electionRepository.findFirstByOrderByIdDesc().orElse(null);
-            positions = latest == null
-                    ? positionRepository.findAllByOrderByIdAsc()
-                    : positionRepository.findBySessionLabelOrderByIdAsc(latest.getSessionLabel());
-        }
+    public List<PositionResponse> getPositions() {
+        Election latest = electionRepository.findFirstByOrderByIdDesc().orElse(null);
+        if (latest == null) return List.of();
+        return mapPositions(positionRepository.findBySessionLabelOrderByIdAsc(latest.getSessionLabel()));
+    }
+
+    @Override
+    public List<PositionResponse> getAdminPositions(String sessionLabel) {
+        String selectedLabel = sessionLabel != null ? sessionLabel : getWorkingSessionLabel();
+        return selectedLabel == null ? List.of()
+                : mapPositions(positionRepository.findBySessionLabelOrderByIdAsc(selectedLabel));
+    }
+
+    private List<PositionResponse> mapPositions(List<Position> positions) {
         return positions.stream().map(p -> PositionResponse.builder()
                 .id(p.getId()).name(p.getName()).sessionLabel(p.getSessionLabel()).build()).toList();
     }
 
+    public String getWorkingSessionLabel() {
+        return positionRepository.findAllByOrderByIdAsc().stream()
+                .map(Position::getSessionLabel).filter(java.util.Objects::nonNull)
+                .max(String::compareTo)
+                .orElseGet(() -> electionRepository.findFirstByOrderByIdDesc()
+                        .map(Election::getSessionLabel).orElse(null));
+    }
+
     @Override
     public ElectionResponse getLatestElection() {
-        Election latest = electionRepository.findFirstByOrderByIdDesc()
-                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "No election has been scheduled yet"));
+        Election latest = electionRepository.findFirstByOrderByIdDesc().orElse(null);
         ZoneId lagos = ZoneId.of("Africa/Lagos");
+        OffsetDateTime now = OffsetDateTime.now(lagos);
+        if (latest == null) {
+            return ElectionResponse.builder().status("NOT_SCHEDULED").serverTime(now).build();
+        }
         return ElectionResponse.builder()
                 .sessionLabel(latest.getSessionLabel())
                 .startTime(latest.getStartTime().atZoneSameInstant(lagos).toOffsetDateTime())
                 .endTime(latest.getEndTime().atZoneSameInstant(lagos).toOffsetDateTime())
                 .closed(latest.isClosed())
+                .status(ElectionStatusResolver.resolve(latest, now))
+                .serverTime(now)
                 .build();
     }
 

@@ -1,27 +1,18 @@
 package com.udusug.voting.election.controller;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.election.dto.ElectionResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.election.dto.PositionResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import com.udusug.voting.election.service.ElectionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestMapping;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.RequestParam;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 
+@Slf4j
 @RestController
 @Tag(name = "Elections and Positions")
 @RequestMapping("/api")
@@ -30,13 +21,14 @@ public class ElectionQueryController {
     private final ElectionService electionService;
 
     @GetMapping("/positions")
-    public ResponseEntity<List<PositionResponse>> getPositions(
-            @RequestParam(required = false) String sessionLabel) {
-        return ResponseEntity.ok(electionService.getPositions(sessionLabel));
+    public ResponseEntity<List<PositionResponse>> getPositions() {
+        log.info("HTTP GET /api/positions received");
+        return ResponseEntity.ok(electionService.getPositions());
     }
 
     @GetMapping("/election")
     public ResponseEntity<ElectionResponse> getElection() {
+        log.info("HTTP GET /api/election received");
         return ResponseEntity.ok(electionService.getLatestElection());
     }
 }
